@@ -258,10 +258,6 @@ RSpec.describe LotteryService do
           [address, probability, expected, probability.between?(low_margin, high_margin)]
         end
 
-        #p calcs
-        #require 'pry'
-        #binding.pry
-
         all_true = probabilities.all? do |address, probability|
           expected = expected_probabilities[address]
 
