@@ -30,40 +30,43 @@ RSpec.describe LotteryService do
     let(:blacklist) { ['0x008'] }
     let(:balances) {
       {
-        '0x001' =>    249,        # should be excluded. not enough balance
+        '0x001' =>    249, # should be excluded. not enough balance
         # ----------------
-        '0x002' =>    250,        # should be eligible. never participated
-        '0x003' =>  1_000,        # should be eligible. never participated
-        '0x004' =>  3_000,        # should be eligible. never participated
-        '0x005' =>  3_000,        # should be eligible. previous winner. so, it is not used in the calculation of the privileged participants
-        '0x006' =>  3_000,        # should be excluded. previous participant
-        '0x007' => 30_000,        # should be eligible. previous participant. no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
-        '0x008' => 99_999,        # should be excluded (always). e.g: a Polkastarter team address, an exchange, etc
-        '0x009' =>  5_000,        # should be eligible. never participated
-        '0x010' =>  5_000,        # should be eligible. never participated
-        '0x011' => 10_001,        # should be not eligible. # not a top holder because 0x007 has more balance, so this would be the 11th holder
+        '0x002' =>    250, # should be eligible. never participated
+        '0x003' =>  1_000, # should be eligible. never participated
+        '0x004' =>  3_000, # should be eligible. never participated
+        '0x005' =>  3_000, # should be eligible. previous winner.
+                           # so, it is not used in the calculation of the privileged participants
+        '0x006' =>  3_000, # should be excluded. previous participant
+        '0x007' => 30_000, # should be eligible. previous participant. 
+                           # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
+        '0x008' => 99_999, # should be excluded (always). e.g: a Polkastarter team address, an exchange, etc
+        '0x009' =>  5_000, # should be eligible. never participated
+        '0x010' =>  5_000, # should be eligible. never participated
+        '0x011' => 10_001, # should be not eligible. not a top holder because 0x007 has more balance,
+                           # so this would be the 11th holder
         # ----------------
-        '0x012' => 10_002,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x013' => 10_003,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x014' => 10_004,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x015' => 10_005,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x016' => 10_006,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x017' => 10_007,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x018' => 10_008,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x019' => 10_009,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x020' => 10_010,        # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x012' => 10_002, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x013' => 10_003, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x014' => 10_004, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x015' => 10_005, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x016' => 10_006, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x017' => 10_007, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x018' => 10_008, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x019' => 10_009, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x020' => 10_010, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
         # ----------------
-        '0x030' =>  3_000,        # should be eligible. never participated
-        '0x031' =>  3_000,        # should be eligible. never participated
-        '0x032' =>  3_000,        # should be eligible. never participated
-        '0x033' =>  3_000,        # should be eligible. never participated
-        '0x034' =>  3_000,        # should be eligible. never participated
-        '0x035' =>  3_000,        # should be eligible. never participated
-        '0x036' =>  3_000,        # should be eligible. never participated
-        '0x037' =>  3_000,        # should be eligible. never participated
-        '0x038' =>  3_000,        # should be eligible. never participated
-        '0x039' =>  3_000,        # should be eligible. never participated
-        '0x040' =>  3_000,        # should be eligible. never participated
+        '0x030' =>  3_000, # should be eligible. never participated
+        '0x031' =>  3_000, # should be eligible. never participated
+        '0x032' =>  3_000, # should be eligible. never participated
+        '0x033' =>  3_000, # should be eligible. never participated
+        '0x034' =>  3_000, # should be eligible. never participated
+        '0x035' =>  3_000, # should be eligible. never participated
+        '0x036' =>  3_000, # should be eligible. never participated
+        '0x037' =>  3_000, # should be eligible. never participated
+        '0x038' =>  3_000, # should be eligible. never participated
+        '0x039' =>  3_000, # should be eligible. never participated
+        '0x040' =>  3_000, # should be eligible. never participated
       }
     }
 
@@ -105,8 +108,8 @@ RSpec.describe LotteryService do
           "0x003 -> 4.4",
           "0x004 -> 13.8",
           "0x005 -> 13.8",
-          # 0x006            # is out because it is a previous participant 
-          "0x007 -> 150.0",  # is present (event being a previous participant) because has >= 30 000 POLS
+          # 0x006            # is out because it is a recent winner 
+          "0x007 -> 150.0",  # is present (event being a previous winner) because has >= 30 000 POLS
           # 0x008            # is excluded because it a blacklisted address
           "0x009 -> 23.0",
           "0x010 -> 23.0",
@@ -120,7 +123,8 @@ RSpec.describe LotteryService do
           "0x017 -> 48.0",
           "0x018 -> 48.0",
           "0x019 -> 48.0",
-          # 0x020            # is a recent winner, so it should not be eligible
+          # 0x020            # is a recent winner, so it should not be eligible, thus has no tickets.
+                             # However, in the end, as a top holder, exceptionally, it will be a winner
           # -------------
           "0x030 -> 13.8",
           "0x031 -> 13.8",
@@ -167,7 +171,8 @@ RSpec.describe LotteryService do
           "0x017 -> 1.2",
           "0x018 -> 1.2",
           "0x019 -> 1.2",
-          # 0x020            # is a recent winner, so it should not be eligible
+          # 0x020            # is a recent winner, so it should not be eligible, thus has no tickets.
+          #                  # However, in the end, as a top holder, exceptionally, it will be a winner
           # -------------
           "0x030 -> 1.15",
           "0x031 -> 1.15",
@@ -204,48 +209,49 @@ RSpec.describe LotteryService do
         expected_probabilities = {
           "0x001" => 0,
           # -------------
-          "0x002" => 0.49095,
-          "0x003" => 0.5391,
-          "0x004" => 0.5573,
-          "0x005" => 0.5196,
-          "0x006" => 0,       # excluded because is a recent winner
-          "0x007" => 1.0,     # always appear because is a top 10 holder
-          "0x008" => 0,       # excluded because is a 
-          "0x009" => 0.56125,
-          "0x010" => 0.56265,
+          "0x002" => 0.490,
+          "0x003" => 0.539,
+          "0x004" => 0.557,
+          "0x005" => 0.519,
+          "0x006" => 0.000, # excluded because is a recent winner
+          "0x007" => 1.000, # always appear because is a top 10 holder
+          "0x008" => 0.000, # excluded because is a 
+          "0x009" => 0.561,
+          "0x010" => 0.562,
           # -------------
-          "0x011" => 0.5812,   # holds a lot (almost the same as top 10 holders). however, has less probability because it is not a top 10 holder
-          "0x012" => 1.0,      # always appear because is a top 10 holder
-          "0x013" => 1.0,      # always appear because is a top 10 holder
-          "0x014" => 1.0,      # always appear because is a top 10 holder
-          "0x015" => 1.0,      # always appear because is a top 10 holder
-          "0x016" => 1.0,      # always appear because is a top 10 holder
-          "0x017" => 1.0,      # always appear because is a top 10 holder
-          "0x018" => 1.0,      # always appear because is a top 10 holder
-          "0x019" => 1.0,      # always appear because is a top 10 holder
-          "0x020" => 1.0,      # always appear because is a top 10 holder
+          "0x011" => 0.581, # holds a lot (almost the same as top 10 holders).
+                            # however, has less probability because it is not a top 10 holder
+          "0x012" => 1.000, # always appear because is a top 10 holder
+          "0x013" => 1.000, # always appear because is a top 10 holder
+          "0x014" => 1.000, # always appear because is a top 10 holder
+          "0x015" => 1.000, # always appear because is a top 10 holder
+          "0x016" => 1.000, # always appear because is a top 10 holder
+          "0x017" => 1.000, # always appear because is a top 10 holder
+          "0x018" => 1.000, # always appear because is a top 10 holder
+          "0x019" => 1.000, # always appear because is a top 10 holder
+          "0x020" => 1.000, # always appear because is a top 10 holder
           # -------------
-          "0x021" => 0,
-          "0x022" => 0,
-          "0x023" => 0,
-          "0x024" => 0,
-          "0x025" => 0,
-          "0x026" => 0,
-          "0x027" => 0,
-          "0x028" => 0,
-          "0x029" => 0,
+          "0x021" => 0.000,
+          "0x022" => 0.000,
+          "0x023" => 0.000,
+          "0x024" => 0.000,
+          "0x025" => 0.000,
+          "0x026" => 0.000,
+          "0x027" => 0.000,
+          "0x028" => 0.000,
+          "0x029" => 0.000,
           # -------------
-          "0x030" => 0.56075,
-          "0x031" => 0.55915,
-          "0x032" => 0.5623,
-          "0x033" => 0.56205,
-          "0x034" => 0.5611,
-          "0x035" => 0.56245,
-          "0x036" => 0.5645,
-          "0x037" => 0.5654,
-          "0x038" => 0.56585,
-          "0x039" => 0.56695,
-          "0x040" => 0.55745,
+          "0x030" => 0.560,
+          "0x031" => 0.559,
+          "0x032" => 0.562,
+          "0x033" => 0.562,
+          "0x034" => 0.561,
+          "0x035" => 0.562,
+          "0x036" => 0.564,
+          "0x037" => 0.565,
+          "0x038" => 0.565,
+          "0x039" => 0.566,
+          "0x040" => 0.557,
         }
 
         # For debugging purposes
