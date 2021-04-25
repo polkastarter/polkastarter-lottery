@@ -43,18 +43,18 @@ RSpec.describe LotteryService do
         '0x008' => 99_999, # should be excluded (always). e.g: a Polkastarter team address, an exchange, etc
         '0x009' =>  5_000, # should be eligible. never participated
         '0x010' =>  5_000, # should be eligible. never participated
-        '0x011' => 10_001, # should be not eligible. not a top holder because 0x007 has more balance,
-                           # so this would be the 11th holder
+        '0x011' => 10_001, # should be eligible, as a normal participant, i.e. it is not a top holder
+                           # because 0x007 has more balance, so this would be the 11th holder
         # ----------------
-        '0x012' => 10_002, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x013' => 10_003, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x014' => 10_004, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x015' => 10_005, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x016' => 10_006, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x017' => 10_007, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x018' => 10_008, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x019' => 10_009, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
-        '0x020' => 10_010, # should be eligible. a top 10 holder. no cooldown (i.e. would be excluded, but is eligible because is top holder)
+        '0x012' => 10_002, # should be eligible
+        '0x013' => 10_003, # should be eligible
+        '0x014' => 10_004, # should be eligible
+        '0x015' => 10_005, # should be eligible
+        '0x016' => 10_006, # should be eligible
+        '0x017' => 10_007, # should be eligible
+        '0x018' => 10_008, # should be eligible
+        '0x019' => 10_009, # should be eligible
+        '0x020' => 10_010, # should be eligible
         # ----------------
         '0x030' =>  3_000, # should be eligible. never participated
         '0x031' =>  3_000, # should be eligible. never participated
@@ -231,16 +231,6 @@ RSpec.describe LotteryService do
           "0x019" => 1.000, # always appear because is a top 10 holder
           "0x020" => 1.000, # always appear because is a top 10 holder
           # -------------
-          "0x021" => 0.000,
-          "0x022" => 0.000,
-          "0x023" => 0.000,
-          "0x024" => 0.000,
-          "0x025" => 0.000,
-          "0x026" => 0.000,
-          "0x027" => 0.000,
-          "0x028" => 0.000,
-          "0x029" => 0.000,
-          # -------------
           "0x030" => 0.560,
           "0x031" => 0.559,
           "0x032" => 0.562,
@@ -251,7 +241,7 @@ RSpec.describe LotteryService do
           "0x037" => 0.565,
           "0x038" => 0.565,
           "0x039" => 0.566,
-          "0x040" => 0.557,
+          "0x040" => 0.557
         }
 
         # For debugging purposes

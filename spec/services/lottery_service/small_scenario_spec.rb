@@ -8,6 +8,9 @@ RSpec.describe LotteryService do
                                       past_winners: past_winners,
                                       blacklist: blacklist) }
 
+  # NOTE: In this "small scenario" we exclude all the top holders and ignore the "privileged never winning" ratio,
+  #       just to ease the probability calculations between all the "normal participants".
+  #       The full scenario is tested on another file.
   context 'given a specific context' do
     before do
       stub_const 'LotteryService::MAX_WINNERS', 500
@@ -35,10 +38,13 @@ RSpec.describe LotteryService do
         '0x222' => 250,           # eligible. never participated
         '0x333' => 1_000,         # eligible. never participated
         '0x444' => 3_000,         # eligible. never participated
-        '0x555' => 3_000,         # eligible. previous winner. So, it would not be used in the calculation of the privileged participants
-                                  #                            However, in these simple scenario of tests we're ignoring it because we have PRIVILEGED_NEVER_WINNING_RATIO set to 0
+        '0x555' => 3_000,         # eligible. previous winner.
+                                  # So, it would not be used in the calculation of the privileged participants
+                                  # However, in these simple scenario of tests we're ignoring it
+                                  # because we have PRIVILEGED_NEVER_WINNING_RATIO set to 0
         '0x666' => 3_000,         # excluded. previous participant
-        '0x777' => 30_000,        # eligible. previous participant. no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
+        '0x777' => 30_000,        # eligible. previous participant.
+                                  # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
         '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc
       }
     }
