@@ -245,15 +245,14 @@ RSpec.describe LotteryService do
         }
 
         # For debugging purposes
-        calcs = probabilities.map do |address, probability|
-          expected = expected_probabilities[address]
+        # calcs = probabilities.map do |address, probability|
+        #   expected = expected_probabilities[address]
+        #   low_margin  = expected - error_margin
+        #   high_margin = expected + error_margin
+        #   [address, probability, expected, probability.between?(low_margin, high_margin)]
+        # end
 
-          low_margin  = expected - error_margin
-          high_margin = expected + error_margin
-
-          [address, probability, expected, probability.between?(low_margin, high_margin)]
-        end
-
+        # Calculate values
         all_true = probabilities.all? do |address, probability|
           expected = expected_probabilities[address]
 

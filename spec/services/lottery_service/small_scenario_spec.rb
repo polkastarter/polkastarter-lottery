@@ -42,8 +42,8 @@ RSpec.describe LotteryService do
                                   # So, it would not be used in the calculation of the privileged participants
                                   # However, in these simple scenario of tests we're ignoring it
                                   # because we have PRIVILEGED_NEVER_WINNING_RATIO set to 0
-        '0x666' => 3_000,         # excluded. previous participant
-        '0x777' => 30_000,        # eligible. previous participant.
+        '0x666' => 3_000,         # excluded. recent winner
+        '0x777' => 30_000,        # eligible. recent winner.
                                   # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
         '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc
       }
