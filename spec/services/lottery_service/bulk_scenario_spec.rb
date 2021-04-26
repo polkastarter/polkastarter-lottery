@@ -53,6 +53,7 @@ RSpec.describe LotteryService do
 
       it 'runs and generates the expected probabilites for some key holders' do
         number_of_experiments = 2_000
+        error = 0.015
 
         # Run experiments
         experiments = []
@@ -84,16 +85,20 @@ RSpec.describe LotteryService do
           [be_a(String), a_value < 1.0]
         ])
 
-        error = 0.015
+        puts ""
+        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} holders:"
+        puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: 100%"
 
         # Check if specific-key addresses match the expected probability
         address = '0x4bb9f0008b7d69fd896a85a0652304502e6bc4a2'
         expect(balances[address]).to eq(249.0)
         expect(probabilities_hash[address]).to be_nil
+        puts " * <250 POLS: 0%"
 
         address = '0x34244790665c5d6d03673a0cb6dc04e708d7f2fc'
         expect(balances[address]).to eq(251.0)
         expect(probabilities_hash[address]).to be_around(0.0075, error: error)
+        puts " * 250+ POLS: #{(probabilities_hash[address] * 100).round(1)}%"
 
         address = '0x6d51241f1ca020ef659f6e94f53708f0cf40ac53'
         expect(balances[address]).to eq(999.0)
@@ -101,15 +106,17 @@ RSpec.describe LotteryService do
 
         address = '0x6b54dbdab957e4dcf952fcd8d0ae7bbf35a6941a'
         expect(balances[address]).to eq(1_000.0)
-        expect(probabilities_hash[address]).to be_around(0.044, error: error)
+        expect(probabilities_hash[address]).to be_around(0.05, error: error)
+        puts " * 1k+ POLS: #{(probabilities_hash[address] * 100).round(1)}%"
 
         address = '0x842bf6a05dffa2f04572e0b676d0d320cd90f03b'
         expect(balances[address]).to eq(1_100.0)
-        expect(probabilities_hash[address]).to be_around(0.0505, error: error)
+        expect(probabilities_hash[address]).to be_around(0.05, error: error)
 
         address = '0x83eeccdb1bec996bc1e732a0c0e354d7b768f51c'
         expect(balances[address]).to eq(3_000.0)
         expect(probabilities_hash[address]).to be_around(0.0915, error: error)
+        puts " * 3k+ POLS: #{(probabilities_hash[address] * 100).round(1)}%"
 
         address = '0xad50d90b2bf0ad70b8bc05e7002f1486d4149e7b'
         expect(balances[address]).to eq(3_300.0)
@@ -118,6 +125,7 @@ RSpec.describe LotteryService do
         address = '0x152e24dd10e0e5036cfde46157c911c11090db88'
         expect(balances[address]).to eq(10_100.0)
         expect(probabilities_hash[address]).to be_around(0.1235, error: error)
+        puts " * 10k+ POLS: #{(probabilities_hash[address] * 100).round(1)}%"
 
         address = '0xa7188b8cbccd0bd566eeb346b9e8ce9768e150da'
         expect(balances[address]).to eq(29_100.844164041)
@@ -126,6 +134,7 @@ RSpec.describe LotteryService do
         address = '0x25043e1526bccd8ea36d09d3c70d9b45e6040728'
         expect(balances[address]).to eq(30_260.052781161)
         expect(probabilities_hash[address]).to be_around(0.153, error: error)
+        puts " * 30k+ POLS: #{(probabilities_hash[address] * 100).round(1)}%"
       end
     end
   end
