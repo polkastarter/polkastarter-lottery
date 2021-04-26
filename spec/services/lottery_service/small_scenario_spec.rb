@@ -57,6 +57,7 @@ RSpec.describe LotteryService do
           "#{participant.address} -> #{participant.tickets.round(4)}"
         end
 
+        expect(service.participants.sum(&:tickets)).to eq(183)
         expect(tickets).to match_array([
           '0x222 -> 1.0',
           '0x333 -> 4.4',
@@ -99,10 +100,15 @@ RSpec.describe LotteryService do
       end
 
       it 'correctly shuffles participants based on theirs weights' do
+        # Note that we're only getting the first winner on each exoerimenta,
+        # because we just want to calculate probabilities for each of them
+        stub_const 'LotteryService::MAX_WINNERS', 1
+
         top_winners = []
         number_of_experiments = 100_000
 
-        # Run experiments (and get only the top winner to ease calculations) because complex rules do not appy on this context
+        # Run experiments (and get only the top winner to ease calculations)
+        # because complex rules do not appy on this context
         number_of_experiments.times do
           service.run
           top_winners << service.winners.first.address
