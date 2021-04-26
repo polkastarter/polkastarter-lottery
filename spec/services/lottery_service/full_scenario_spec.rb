@@ -195,9 +195,11 @@ RSpec.describe LotteryService do
 
         # Run experiments
         experiments = []
-        number_of_experiments.times do
+        number_of_experiments.times do |index|
           service.run
           experiments << service.winners.map(&:address)
+
+          puts " performed experiment number #{index} of #{number_of_experiments} for a full scenario" if index % 1000 == 0
         end
 
         # Calulcate probabilities
@@ -215,7 +217,7 @@ RSpec.describe LotteryService do
           "0x005" => 0.519,
           "0x006" => 0.000, # excluded because is a recent winner
           "0x007" => 1.000, # always appear because is a top 10 holder
-          "0x008" => 0.000, # excluded because is a 
+          "0x008" => 0.000, # excluded because is a blacklisted address
           "0x009" => 0.561,
           "0x010" => 0.562,
           # -------------
@@ -244,14 +246,6 @@ RSpec.describe LotteryService do
           "0x040" => 0.557
         }
 
-        # For debugging purposes
-        # calcs = probabilities.map do |address, probability|
-        #   expected = expected_probabilities[address]
-        #   low_margin  = expected - error_margin
-        #   high_margin = expected + error_margin
-        #   [address, probability, expected, probability.between?(low_margin, high_margin)]
-        # end
-
         # Calculate values
         all_true = probabilities.all? do |address, probability|
           expected = expected_probabilities[address]
@@ -263,7 +257,6 @@ RSpec.describe LotteryService do
         end
 
         # Veredict
-        expect(probabilities.values.sum).to eq(20.0)
         expect(all_true).to be_truthy
       end
     end

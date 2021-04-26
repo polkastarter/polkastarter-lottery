@@ -29,9 +29,9 @@ RSpec.describe LotteryService do
 
     end
 
-    let(:past_winners) { ['0x555'] }
+    let(:past_winners)   { ['0x555'] }
     let(:recent_winners) { ['0x666', '0x777'] }
-    let(:blacklist) { ['0x888'] }
+    let(:blacklist)      { ['0x888'] }
     let(:balances) {
       {
         '0x111' => 249,           # not enough balance
@@ -107,26 +107,29 @@ RSpec.describe LotteryService do
         top_winners = []
         number_of_experiments = 100_000
 
-        # Run experiments (and get only the top winner to ease calculations)
-        # because complex rules do not appy on this context
+        # Run experiments
+        experiments = []
         number_of_experiments.times do
+          service = described_class.new(balances: balances,
+                                        recent_winners: recent_winners,
+                                        past_winners: past_winners,
+                                        blacklist: blacklist)
           service.run
-          top_winners << service.winners.first.address
+          experiments << service.winners.map(&:address)
         end
 
         # Calulcate probabilities
-        probabilities = top_winners.count_by { |p| p }.map do |address, count|
-          [address, count / number_of_experiments.to_f]
-        end.to_h
+        occurences = experiments.flatten.count_by { |address| address }
+        probabilities = occurences.transform_values { |value| value.to_f / number_of_experiments }
 
         # Calculate if all addresses match the expected probability
         error_margin = 0.01
         expected_probabilities = {
-          "0x222" => 0.110,
-          "0x333" => 0.174,
-          "0x444" => 0.211,
-          "0x555" => 0.211,
-          "0x777" => 0.291
+          "0x222" => 0.0055, #  0.6% expected
+          "0x333" => 0.0240, #  2.4% expected
+          "0x444" => 0.0754, #  7.5% expected
+          "0x555" => 0.0754, #  7.5% expected
+          "0x777" => 0.8197  # 81.9% expected
         }
         all_true = probabilities.all? do |address, probability|
           probability >= expected_probabilities[address] - error_margin &&

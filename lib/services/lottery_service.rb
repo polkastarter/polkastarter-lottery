@@ -31,6 +31,21 @@ class LotteryService
     @winners = calculate_winners
   end
 
+  # Only used for statistics and debugging
+  def stats_by_tier
+    Participant::BALANCE_WEIGHTS.keys.inject({}) do |tiers, tier|
+      tier_participants = participants.select { |participant| participant.tier == tier }.size
+      tier_winners      = winners.select      { |winner| winner.tier == tier }.size
+
+      tiers[tier] = {
+        winners:      tier_winners,
+        participants: tier_participants,
+        percentage:   tier_winners.to_f / tier_participants
+      }
+      tiers
+    end
+  end
+
   private
 
   def calculate_winners
@@ -56,9 +71,17 @@ class LotteryService
     never_winning_participants.sample sample_size
   end
 
+  def weighted_random_sample(participants)
+    participants.max_by do |participant|
+      rand ** (1.0 / participant.tickets)
+    end
+  end
+
   def shuffled_eligible_participants
-    participants.sort_by do |participant|
-      - participant.weight * rand()
+    multiplier = balances.size / (MAX_WINNERS * 2)
+
+    (MAX_WINNERS * multiplier).times.map do
+      weighted_random_sample(participants)
     end
   end
 

@@ -27,7 +27,11 @@ class Participant
   end
 
   def weight
-    @weight ||= BALANCE_WEIGHTS[BALANCE_WEIGHTS.keys.select { |min_balance| min_balance <= balance }.last]
+    @weight ||= BALANCE_WEIGHTS[tier]
+  end
+
+  def tier
+    BALANCE_WEIGHTS.keys.select { |min_balance| min_balance <= balance }.last
   end
 
   def eligible?
