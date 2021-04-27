@@ -4,7 +4,7 @@ require_relative '../../../lib/services/lottery_service'
 
 RSpec.describe LotteryService do
   before do
-    stub_const 'LotteryService::MAX_WINNERS', 500
+    stub_const 'LotteryService::MAX_WINNERS', 1000
     stub_const 'LotteryService::TOP_N_HOLDERS', 10
     stub_const 'LotteryService::PRIVILEGED_NEVER_WINNING_RATIO', 0.10
     stub_const 'Participant::TICKET_PRICE', 250
@@ -37,11 +37,11 @@ RSpec.describe LotteryService do
       it 'runs and generates an expected number of participants, of winners and intermediate sizes' do
         service.run
 
-        expect(service.all_participants.size).to                       eq(15_353) # 5_808
-        expect(service.participants.size).to                           eq(5_204)
+        expect(service.all_participants.size).to                       eq(15_353)
+        expect(service.participants.size).to                           eq(15_152)
         expect(service.send(:top_holders).size).to                     eq(10) # fixed 10
-        expect(service.send(:privileged_participants).size).to         eq(50) # i.e. 10% of 500
-        expect(service.winners.size).to                                eq(500)
+        expect(service.send(:privileged_participants).size).to         eq(LotteryService::MAX_WINNERS * LotteryService::PRIVILEGED_NEVER_WINNING_RATIO) # i.e. 10% of 1000
+        expect(service.winners.size).to                                eq(LotteryService::MAX_WINNERS)
       end
 
       # TODO: refactor to a custom matcher:
@@ -55,12 +55,13 @@ RSpec.describe LotteryService do
       end
 
       it 'runs and generates the expected probabilites for some key holders' do
-        number_of_experiments = 100
+        number_of_experiments = 50
         error = 0.015
 
         # Run experiments
         experiments = []
         tiers_experiments = {}
+        start_at = Time.now.to_f
 
         puts ""
         number_of_experiments.times do |index|
@@ -71,12 +72,14 @@ RSpec.describe LotteryService do
 
           tiers_experiments.deep_merge!(service.stats_by_tier) { |key, v1, v2| v1 + v2 }
           tiers_experiments.each do |tier, stats|
+            expect(service.winners.size).to eq(LotteryService::MAX_WINNERS)
             tiers_experiments[tier][:percentage] = stats[:winners].to_f / stats[:participants] * 100
           end
 
           time_diff = Time.now.to_f - timestamp
           puts " performed experiment number #{index} of #{number_of_experiments} for a bulk scenario [last experiment executed in #{time_diff.round(2)} seconds]" if index % 10 == 0
         end
+        puts "Total run time: #{(Time.now.to_f - start_at).round(2)} seconds"
 
         # Calulcate probabilities
         occurences = experiments.flatten.count_by { |address| address }
@@ -95,7 +98,7 @@ RSpec.describe LotteryService do
         puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000])}"
 
         # Final veredict
-        expect(probabilities_hash.values.sum).to eq(500.0)
+        expect(probabilities_hash.values.sum).to eq(1000.0)
 
         # Top 10 holders have 100% probability to enter
         top_n_holders = balances.first(10).map(&:first)

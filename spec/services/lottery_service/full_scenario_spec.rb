@@ -191,7 +191,7 @@ RSpec.describe LotteryService do
 
     describe '#winners' do
       it 'correctly shuffles participants based on theirs weights' do
-        number_of_experiments = 2_000
+        number_of_experiments = 10_000
 
         # Run experiments
         puts ""
@@ -208,14 +208,14 @@ RSpec.describe LotteryService do
         probabilities = occurences.transform_values { |value| value.to_f / number_of_experiments }
 
         # Calculate if all addresses match the expected probability
-        error_margin = 0.01
+        error_margin = 0.02
         expected_probabilities = {
           "0x001" => 0,
           # -------------
           "0x002" => 0.1250,
-          "0x003" => 0.2700,
-          "0x004" => 0.5500,
-          "0x005" => 0.5500,
+          "0x003" => 0.2694,
+          "0x004" => 0.5554,
+          "0x005" => 0.5126,
           "0x006" => 0.0000, # excluded because is a recent winner
           "0x007" => 1.0000, # always appear because is a top 10 holder
           "0x008" => 0.0000, # excluded because is a blacklisted address
@@ -233,17 +233,17 @@ RSpec.describe LotteryService do
           "0x019" => 1.0,    # always appear because is a top 10 holder
           "0x020" => 1.0,    # always appear because is a top 10 holder
           # -------------
-          "0x030" => 0.5560,
-          "0x031" => 0.5560,
-          "0x032" => 0.5560,
-          "0x033" => 0.5560,
-          "0x034" => 0.5560,
-          "0x035" => 0.5560,
-          "0x036" => 0.5560,
-          "0x037" => 0.5560,
-          "0x038" => 0.5560,
-          "0x039" => 0.5560,
-          "0x040" => 0.5560
+          "0x030" => 0.5547,
+          "0x031" => 0.5549,
+          "0x032" => 0.5624,
+          "0x033" => 0.5638,
+          "0x034" => 0.5529,
+          "0x035" => 0.5546,
+          "0x036" => 0.5640,
+          "0x037" => 0.5590,
+          "0x038" => 0.5508,
+          "0x039" => 0.5613,
+          "0x040" => 0.5609
         }
 
         # Calculate values
