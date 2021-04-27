@@ -191,9 +191,10 @@ RSpec.describe LotteryService do
 
     describe '#winners' do
       it 'correctly shuffles participants based on theirs weights' do
-        number_of_experiments = 50_000
+        number_of_experiments = 2_000
 
         # Run experiments
+        puts ""
         experiments = []
         number_of_experiments.times do |index|
           service.run
@@ -211,42 +212,57 @@ RSpec.describe LotteryService do
         expected_probabilities = {
           "0x001" => 0,
           # -------------
-          "0x002" => 0.490,
-          "0x003" => 0.539,
-          "0x004" => 0.557,
-          "0x005" => 0.519,
-          "0x006" => 0.000, # excluded because is a recent winner
-          "0x007" => 1.000, # always appear because is a top 10 holder
-          "0x008" => 0.000, # excluded because is a blacklisted address
-          "0x009" => 0.561,
-          "0x010" => 0.562,
+          "0x002" => 0.1250,
+          "0x003" => 0.2700,
+          "0x004" => 0.5500,
+          "0x005" => 0.5500,
+          "0x006" => 0.0000, # excluded because is a recent winner
+          "0x007" => 1.0000, # always appear because is a top 10 holder
+          "0x008" => 0.0000, # excluded because is a blacklisted address
+          "0x009" => 0.7250,
+          "0x010" => 0.7250,
           # -------------
-          "0x011" => 0.581, # holds a lot (almost the same as top 10 holders).
-                            # however, has less probability because it is not a top 10 holder
-          "0x012" => 1.000, # always appear because is a top 10 holder
-          "0x013" => 1.000, # always appear because is a top 10 holder
-          "0x014" => 1.000, # always appear because is a top 10 holder
-          "0x015" => 1.000, # always appear because is a top 10 holder
-          "0x016" => 1.000, # always appear because is a top 10 holder
-          "0x017" => 1.000, # always appear because is a top 10 holder
-          "0x018" => 1.000, # always appear because is a top 10 holder
-          "0x019" => 1.000, # always appear because is a top 10 holder
-          "0x020" => 1.000, # always appear because is a top 10 holder
+          "0x011" => 0.9210, # holds a lot (almost the same as top 10 holders). however, has a little bit less probability because it is not a top 10 holder
+          "0x012" => 1.0,    # always appear because is a top 10 holder
+          "0x013" => 1.0,    # always appear because is a top 10 holder
+          "0x014" => 1.0,    # always appear because is a top 10 holder
+          "0x015" => 1.0,    # always appear because is a top 10 holder
+          "0x016" => 1.0,    # always appear because is a top 10 holder
+          "0x017" => 1.0,    # always appear because is a top 10 holder
+          "0x018" => 1.0,    # always appear because is a top 10 holder
+          "0x019" => 1.0,    # always appear because is a top 10 holder
+          "0x020" => 1.0,    # always appear because is a top 10 holder
           # -------------
-          "0x030" => 0.560,
-          "0x031" => 0.559,
-          "0x032" => 0.562,
-          "0x033" => 0.562,
-          "0x034" => 0.561,
-          "0x035" => 0.562,
-          "0x036" => 0.564,
-          "0x037" => 0.565,
-          "0x038" => 0.565,
-          "0x039" => 0.566,
-          "0x040" => 0.557
+          "0x030" => 0.5560,
+          "0x031" => 0.5560,
+          "0x032" => 0.5560,
+          "0x033" => 0.5560,
+          "0x034" => 0.5560,
+          "0x035" => 0.5560,
+          "0x036" => 0.5560,
+          "0x037" => 0.5560,
+          "0x038" => 0.5560,
+          "0x039" => 0.5560,
+          "0x040" => 0.5560
         }
 
         # Calculate values
+        puts "Results"
+        probabilities.each do |address, probability|
+          expected = expected_probabilities[address]
+
+          low_margin  = expected - error_margin
+          high_margin = expected + error_margin
+
+          puts({
+            address: address,
+            expected: expected,
+            probability: probability,
+            error: (probability - expected).round(2),
+            valid: probability.between?(low_margin, high_margin)
+          })
+        end
+
         all_true = probabilities.all? do |address, probability|
           expected = expected_probabilities[address]
 

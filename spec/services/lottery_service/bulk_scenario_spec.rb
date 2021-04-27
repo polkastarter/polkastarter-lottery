@@ -37,7 +37,7 @@ RSpec.describe LotteryService do
       it 'runs and generates an expected number of participants, of winners and intermediate sizes' do
         service.run
 
-        expect(service.all_participants.size).to                       eq(5_808)
+        expect(service.all_participants.size).to                       eq(15_353) # 5_808
         expect(service.participants.size).to                           eq(5_204)
         expect(service.send(:top_holders).size).to                     eq(10) # fixed 10
         expect(service.send(:privileged_participants).size).to         eq(50) # i.e. 10% of 500
@@ -50,33 +50,32 @@ RSpec.describe LotteryService do
                         (value + error)
       end
 
+      def stats_for(tier_stats)
+        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners]} winners of a total of #{tier_stats[:participants]} participants in all experiments)"
+      end
+
       it 'runs and generates the expected probabilites for some key holders' do
         number_of_experiments = 100
         error = 0.015
 
         # Run experiments
         experiments = []
-        winners_by_tier = {}
-        participants_by_tier = {}
-        percentage_by_tier = {}
-        #tiers = Participant::BALANCE_WEIGHTS.keys
+        tiers_experiments = {}
 
+        puts ""
         number_of_experiments.times do |index|
+          timestamp = Time.now.to_f
+
           service.run
           experiments << service.winners.map(&:address)
 
-          service.stats_by_tier.each do |tier, stats|
-            winners_by_tier[tier] ||= 0
-            winners_by_tier[tier] += stats[:winners]
-          end
-          service.stats_by_tier.each do |tier, stats|
-            participants_by_tier[tier] ||= 0
-            participants_by_tier[tier] += stats[:participants]
-
-            percentage_by_tier[tier] = (winners_by_tier[tier].to_f / participants_by_tier[tier] * 100)
+          tiers_experiments.deep_merge!(service.stats_by_tier) { |key, v1, v2| v1 + v2 }
+          tiers_experiments.each do |tier, stats|
+            tiers_experiments[tier][:percentage] = stats[:winners].to_f / stats[:participants] * 100
           end
 
-          puts " performed experiment number #{index} of #{number_of_experiments} for a bulk scenario" if index % 10 == 0
+          time_diff = Time.now.to_f - timestamp
+          puts " performed experiment number #{index} of #{number_of_experiments} for a bulk scenario [last experiment executed in #{time_diff.round(2)} seconds]" if index % 10 == 0
         end
 
         # Calulcate probabilities
@@ -84,20 +83,16 @@ RSpec.describe LotteryService do
         probabilities_hash = occurences.transform_values { |value| value.to_f / number_of_experiments }
         probabilities_array = probabilities_hash.sort_by { |address, probability| probability }.reverse
 
-        # require 'pry'
-        # binding.pry
-        # nil
-
         # Statistics
         puts ""
-        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} holders:"
-        puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: 100%"
-        puts " * <250 POLS: #{percentage_by_tier[0].round(1)}%"
-        puts " * 250+ POLS: #{percentage_by_tier[250].round(1)}%"
-        puts " * 1k+ POLS:  #{percentage_by_tier[1_000].round(1)}%"
-        puts " * 3k+ POLS:  #{percentage_by_tier[3_000].round(1)}%"
-        puts " * 10k+ POLS: #{percentage_by_tier[10_000].round(1)}%"
-        puts " * 30k+ POLS: #{percentage_by_tier[30_000].round(1)}%"
+        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants:"
+        puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: #{probabilities_hash[balances.first.first] * 100}%"
+        puts " * <250 POLS: #{stats_for(tiers_experiments[0])}"
+        puts " * 250+ POLS: #{stats_for(tiers_experiments[250])}"
+        puts " * 1k+ POLS:  #{stats_for(tiers_experiments[1_000])}"
+        puts " * 3k+ POLS:  #{stats_for(tiers_experiments[3_000])}"
+        puts " * 10k+ POLS: #{stats_for(tiers_experiments[10_000])}"
+        puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000])}"
 
         # Final veredict
         expect(probabilities_hash.values.sum).to eq(500.0)
@@ -109,12 +104,12 @@ RSpec.describe LotteryService do
         end
 
         # Expect specific percentage of winners per each tier
-        expect(percentage_by_tier[0]).to be_nan
-        expect(percentage_by_tier[250]).to be_around(0.1000, error: error)
-        expect(percentage_by_tier[250]).to be_around(0.1500, error: error)
-        expect(percentage_by_tier[250]).to be_around(0.7606, error: error)
-        expect(percentage_by_tier[250]).to be_around(0.2905, error: error)
-        expect(percentage_by_tier[250]).to be_around(0.7756, error: error)
+        expect(tiers_experiments[0][:percentage]).to be_nan
+        expect(tiers_experiments[250][:percentage]).to be_around(0.1000, error: error)
+        expect(tiers_experiments[1_000][:percentage]).to be_around(0.1500, error: error)
+        expect(tiers_experiments[3_000][:percentage]).to be_around(0.7606, error: error)
+        expect(tiers_experiments[10_000][:percentage]).to be_around(0.2905, error: error)
+        expect(tiers_experiments[30_000][:percentage]).to be_around(0.7756, error: error)
       end
     end
   end

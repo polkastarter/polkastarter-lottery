@@ -78,9 +78,7 @@ class LotteryService
   end
 
   def shuffled_eligible_participants
-    multiplier = balances.size / (MAX_WINNERS * 2)
-
-    (MAX_WINNERS * multiplier).times.map do
+    (MAX_WINNERS * 5).times.map do
       weighted_random_sample(participants)
     end
   end
