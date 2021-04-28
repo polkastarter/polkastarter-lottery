@@ -27,7 +27,10 @@ RSpec.describe LotteryService do
   context 'given holders read from a CSV file with 5 806 real holders (snapshotted at 26.Apr.2021)' do
     let(:past_winners) { [] }
     let(:recent_winners) { [] }
-    let(:blacklist) { [] }
+    let(:blacklist) {
+      csv = CSV.read('spec/fixtures/whales.csv', headers: true)
+      csv.map { |holder| holder['address'] }
+    }
     let(:balances) {
       csv = CSV.read('spec/fixtures/holders.csv', headers: true)
       csv.map { |holder| [holder['address'], holder['pols_balance'].to_f] }.to_h
@@ -50,8 +53,8 @@ RSpec.describe LotteryService do
                         (value + error)
       end
 
-      def stats_for(tier_stats)
-        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners]} winners of a total of #{tier_stats[:participants]} participants in all experiments)"
+      def stats_for(tier_stats, number_of_experiments)
+        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners] / number_of_experiments} winners of a total of #{tier_stats[:participants] / number_of_experiments} participants)"
       end
 
       it 'runs and generates the expected probabilites for some key holders' do
@@ -89,13 +92,13 @@ RSpec.describe LotteryService do
         # Statistics
         puts ""
         puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants:"
-        puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: #{probabilities_hash[balances.first.first] * 100}%"
-        puts " * <250 POLS: #{stats_for(tiers_experiments[0])}"
-        puts " * 250+ POLS: #{stats_for(tiers_experiments[250])}"
-        puts " * 1k+ POLS:  #{stats_for(tiers_experiments[1_000])}"
-        puts " * 3k+ POLS:  #{stats_for(tiers_experiments[3_000])}"
-        puts " * 10k+ POLS: #{stats_for(tiers_experiments[10_000])}"
-        puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000])}"
+        puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: #{probabilities_array.first[1] * 100 rescue 0}%"
+        puts " * <250 POLS: #{stats_for(tiers_experiments[0], number_of_experiments)}"
+        puts " * 250+ POLS: #{stats_for(tiers_experiments[250], number_of_experiments)}"
+        puts " * 1k+ POLS:  #{stats_for(tiers_experiments[1_000], number_of_experiments)}"
+        puts " * 3k+ POLS:  #{stats_for(tiers_experiments[3_000], number_of_experiments)}"
+        puts " * 10k+ POLS: #{stats_for(tiers_experiments[10_000], number_of_experiments)}"
+        puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000], number_of_experiments)}"
 
         # Final veredict
         expect(probabilities_hash.values.sum).to eq(1000.0)
