@@ -25,7 +25,7 @@ class LotteryService
 
   def run
     @all_participants = build_participants.sort # sort desc by balance
-    @participants = all_participants.select { |participant| !top_holder?(participant) } # top holders are excluded from shuffling because they will always enter
+    @participants = all_participants.select { |participant| !top_holder?(participant) } # top holders are always excluded from shuffling because they will always enter
     @participants = participants.select { |participant| participant.eligible? }.sort # sort desc by balance
 
     @winners = calculate_winners

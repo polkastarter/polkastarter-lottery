@@ -3,13 +3,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'polkastarter-lottery'
-  s.version     = '0.1'
+  s.version     = '0.1.0'
   s.summary     = "Polkastarter Lottery"
   s.description = "The Polkastarter Lottery calculation system"
   s.authors     = ["Polkastarter", "Miguel"]
   s.email       = 'miguelcma@polkastarter.com'
 
-  s.files       = Dir['{lib}/**/*', 'LICENSE', 'README.md']
+  s.files       = Dir['{lib}/**/*', 'LICENSE.md', 'README.md']
   s.test_files  = Dir['spec/**/*']
 
   s.homepage    = 'https://www.polkastarter.com/'
