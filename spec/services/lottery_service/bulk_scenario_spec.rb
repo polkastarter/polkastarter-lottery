@@ -91,7 +91,7 @@ RSpec.describe LotteryService do
 
         # Statistics
         puts ""
-        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants:"
+        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE}:"
         puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: #{probabilities_array.first[1] * 100 rescue 0}%"
         puts " * <250 POLS: #{stats_for(tiers_experiments[0], number_of_experiments)}"
         puts " * 250+ POLS: #{stats_for(tiers_experiments[250], number_of_experiments)}"

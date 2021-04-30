@@ -93,7 +93,7 @@ RSpec.describe LotteryService do
       end
     end
 
-    describe '#participants' do
+    describe '#tickets' do
       it 'calculates the right number of tickets for each participant' do
         service.run
 

@@ -5,6 +5,8 @@ This is based on a set of criteria that aim to turn access to a Pool the most de
 
 This gem is used by Polkastarter to generate lotteries.
 
+Check [this blog post](https://blog.polkastarter.com/polkastarter-whitelists-just-got-a-whole-lot-better/) to understand the full mechanic for this lottery system.
+
 # Installation
 
 `gem install polkastarter-lottery`

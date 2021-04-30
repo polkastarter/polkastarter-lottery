@@ -49,7 +49,7 @@ RSpec.describe LotteryService do
       }
     }
 
-    describe '#participants' do
+    describe '#tickets' do
       it 'calculates the right number of tickets for each participant' do
         service.run
 
