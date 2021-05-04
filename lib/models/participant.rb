@@ -3,15 +3,14 @@ require 'date'
 class Participant
   attr_reader :address
   attr_reader :balance
-  attr_reader :recently_participated
+  attr_reader :recent_winner
 
-  def initialize(address:, balance:, recently_participated:)
+  def initialize(address:, balance:, recent_winner:)
     @address = address.downcase
     @balance = balance || 0
-    @recently_participated = recently_participated
+    @recent_winner = recent_winner
   end
 
-  CONVERSION_LP_POLS = 100
   TICKET_PRICE = 250.freeze                   # e.g: 100 means 1 ticket = 100 POLS
   NO_COOLDOWN_MINIMUM_BALANCE = 30_000.freeze # minimum balance to avoid cooldown
   BALANCE_WEIGHTS = {                         #  e.g: { 1000 => 1.1 } means 1000 POLS weigths 1.1
@@ -42,7 +41,7 @@ class Participant
   def in_cooldown_period?
     return false if balance >= NO_COOLDOWN_MINIMUM_BALANCE
 
-    recently_participated
+    recent_winner
   end
 
   def <=>(other)

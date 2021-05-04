@@ -12,7 +12,7 @@ class LotteryService
   attr_reader :participants     # only eligible ones
   attr_reader :winners          # only winners
 
-  MAX_WINNERS = 500.freeze
+  MAX_WINNERS = 1_000.freeze
   TOP_N_HOLDERS = 10.freeze
   PRIVILEGED_NEVER_WINNING_RATIO = 0.10.freeze
 
@@ -92,9 +92,9 @@ class LotteryService
   def build_participants
     balances.map do |address, balance|
       next if blacklist.include? address
-      Participant.new address:               address,
-                      balance:               balance,
-                      recently_participated: recent_winners.include?(address)
+      Participant.new address:       address,
+                      balance:       balance,
+                      recent_winner: recent_winners.include?(address)
     end.compact
   end
 end

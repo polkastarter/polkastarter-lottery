@@ -24,7 +24,7 @@ RSpec.describe LotteryService do
                                       past_winners: past_winners,
                                       blacklist: blacklist) }
 
-  context 'given holders read from a CSV file with 5 806 real holders (snapshotted at 26.Apr.2021)' do
+  context 'given holders read from a CSV file with holders' do
     let(:past_winners) { [] }
     let(:recent_winners) { [] }
     let(:blacklist) {
@@ -91,7 +91,7 @@ RSpec.describe LotteryService do
 
         # Statistics
         puts ""
-        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE}:"
+        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE} POLS:"
         puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: #{probabilities_array.first[1] * 100 rescue 0}%"
         puts " * <250 POLS: #{stats_for(tiers_experiments[0], number_of_experiments)}"
         puts " * 250+ POLS: #{stats_for(tiers_experiments[250], number_of_experiments)}"
