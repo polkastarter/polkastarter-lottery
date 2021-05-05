@@ -55,7 +55,7 @@ RSpec.describe LotteryService do
       end
 
       def stats_for(tier_stats, number_of_experiments)
-        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners]} number of wins of a total of #{tier_stats[:participants]} participants)"
+        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners]} number of wins of a total of #{tier_stats[:participants]} participants in all experiments)"
       end
 
       it 'runs and generates the expected probabilites for some key holders' do
@@ -64,6 +64,7 @@ RSpec.describe LotteryService do
 
         # Run experiments
         experiments = []
+        experiments_output = []
         tiers_experiments = {}
         start_at = Time.now.to_f
 
@@ -74,9 +75,15 @@ RSpec.describe LotteryService do
           service.run
           experiments << service.winners.map(&:address)
 
+          # Collect tier stats to show at the end
           tiers_experiments.deep_merge!(service.stats_by_tier) { |key, v1, v2| v1 + v2 }
           tiers_experiments.each do |tier, stats|
             tiers_experiments[tier][:percentage] = stats[:winners].to_f / stats[:participants] * 100
+          end
+
+          # Write output to CSV
+          service.winners.each do |winner|
+            experiments_output << [index, winner.address, winner.balance, winner.weight, winner.tier, winner.tickets]
           end
 
           expect(service.winners.size).to eq(LotteryService::MAX_WINNERS)
@@ -86,6 +93,12 @@ RSpec.describe LotteryService do
           puts " performed experiment number #{index} of #{number_of_experiments} for a bulk scenario [last experiment executed in #{time_diff.round(2)} seconds]" if index % 10 == 0
         end
         puts "Total run time: #{(Time.now.to_f - start_at).round(2)} seconds"
+
+        # Write output to CSV
+        CSV.open('experiments_output.csv', 'w') do |csv|
+          csv << %w(experiment address balance weight tier tickets)
+          csv << experiments_output.each { |row| csv << row }
+        end
 
         # Calulcate probabilities
         occurences = experiments.flatten.count_by { |address| address }
