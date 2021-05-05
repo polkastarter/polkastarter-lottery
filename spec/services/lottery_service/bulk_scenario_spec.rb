@@ -22,7 +22,8 @@ RSpec.describe LotteryService do
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,
-                                      blacklist: blacklist) }
+                                      blacklist: blacklist,
+                                      max_winners: LotteryService::MAX_WINNERS) }
 
   context 'given holders read from a CSV file with holders' do
     let(:past_winners) { [] }
@@ -54,7 +55,7 @@ RSpec.describe LotteryService do
       end
 
       def stats_for(tier_stats, number_of_experiments)
-        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners] / number_of_experiments} winners of a total of #{tier_stats[:participants] / number_of_experiments} participants)"
+        "#{tier_stats[:percentage].round(1)}% (#{tier_stats[:winners]} number of wins of a total of #{tier_stats[:participants]} participants)"
       end
 
       it 'runs and generates the expected probabilites for some key holders' do
@@ -75,9 +76,11 @@ RSpec.describe LotteryService do
 
           tiers_experiments.deep_merge!(service.stats_by_tier) { |key, v1, v2| v1 + v2 }
           tiers_experiments.each do |tier, stats|
-            expect(service.winners.size).to eq(LotteryService::MAX_WINNERS)
             tiers_experiments[tier][:percentage] = stats[:winners].to_f / stats[:participants] * 100
           end
+
+          expect(service.winners.size).to eq(LotteryService::MAX_WINNERS)
+          puts "#{service.winners.size} winners for experiment #{index}"
 
           time_diff = Time.now.to_f - timestamp
           puts " performed experiment number #{index} of #{number_of_experiments} for a bulk scenario [last experiment executed in #{time_diff.round(2)} seconds]" if index % 10 == 0

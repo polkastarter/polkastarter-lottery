@@ -11,12 +11,14 @@ class LotteryService
   attr_reader :all_participants # all candidates
   attr_reader :participants     # only eligible ones
   attr_reader :winners          # only winners
+  attr_reader :max_winners
 
-  MAX_WINNERS = 1_000.freeze
+  DEFAULT_MAX_WINNERS = 1_000.freeze
   TOP_N_HOLDERS = 10.freeze
   PRIVILEGED_NEVER_WINNING_RATIO = 0.10.freeze
 
-  def initialize(balances:, recent_winners: [], past_winners: [], blacklist: [])
+  def initialize(balances:, max_winners: DEFAULT_MAX_WINNERS, recent_winners: [], past_winners: [], blacklist: [])
+    @max_winners = max_winners
     @balances = balances
     @recent_winners = recent_winners
     @past_winners = past_winners.map &:downcase
@@ -55,7 +57,7 @@ class LotteryService
     winners += privileged_participants
     winners += shuffled_eligible_participants
 
-    winners.uniq.first MAX_WINNERS
+    winners.uniq.first(max_winners)
   end
 
   def top_holders
@@ -67,7 +69,7 @@ class LotteryService
   end
 
   def privileged_participants
-    sample_size = MAX_WINNERS * PRIVILEGED_NEVER_WINNING_RATIO
+    sample_size = max_winners * PRIVILEGED_NEVER_WINNING_RATIO
     never_winning_participants.sample sample_size
   end
 
@@ -78,7 +80,7 @@ class LotteryService
   end
 
   def shuffled_eligible_participants
-    (MAX_WINNERS * 5).times.map do
+    (max_winners * 5).times.map do
       weighted_random_sample(participants)
     end
   end
