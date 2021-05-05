@@ -22,7 +22,8 @@ RSpec.describe LotteryService do
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,
-                                      blacklist: blacklist) }
+                                      blacklist: blacklist,
+                                      max_winners: LotteryService::MAX_WINNERS) }
 
   context 'given a specific context' do
     let(:past_winners) { ['0x005'] }

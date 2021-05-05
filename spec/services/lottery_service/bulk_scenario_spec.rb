@@ -41,9 +41,9 @@ RSpec.describe LotteryService do
       it 'runs and generates an expected number of participants, of winners and intermediate sizes' do
         service.run
 
-        expect(service.all_participants.size).to                       eq(15_353)
-        expect(service.participants.size).to                           eq(15_152)
-        expect(service.send(:top_holders).size).to                     eq(10) # fixed 10
+        expect(service.all_participants.size).to                       eq(38_520)
+        expect(service.participants.size).to                           eq(18_889)
+        expect(service.send(:top_holders).size).to                     eq(LotteryService::TOP_N_HOLDERS)
         expect(service.send(:privileged_participants).size).to         eq(LotteryService::MAX_WINNERS * LotteryService::PRIVILEGED_NEVER_WINNING_RATIO) # i.e. 10% of 1000
         expect(service.winners.size).to                                eq(LotteryService::MAX_WINNERS)
       end
@@ -117,21 +117,21 @@ RSpec.describe LotteryService do
         puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000], number_of_experiments)}"
 
         # Final veredict
-        expect(probabilities_hash.values.sum).to eq(1000.0)
+        expect(probabilities_hash.values.sum).to eq(LotteryService::MAX_WINNERS)
 
         # Top 10 holders have 100% probability to enter
-        top_n_holders = balances.first(10).map(&:first)
+        top_n_holders = balances.first(LotteryService::TOP_N_HOLDERS).map(&:first)
         top_n_holders.each do |address|
           expect(probabilities_hash[address]).to eq(1.0)
         end
 
         # Expect specific percentage of winners per each tier
         expect(tiers_experiments[0][:percentage]).to be_nan
-        expect(tiers_experiments[250][:percentage]).to be_around(0.1000, error: error)
-        expect(tiers_experiments[1_000][:percentage]).to be_around(0.1500, error: error)
-        expect(tiers_experiments[3_000][:percentage]).to be_around(0.7606, error: error)
-        expect(tiers_experiments[10_000][:percentage]).to be_around(0.2905, error: error)
-        expect(tiers_experiments[30_000][:percentage]).to be_around(0.7756, error: error)
+        expect(tiers_experiments[250][:percentage]).to be_around(1.3, error: error)
+        expect(tiers_experiments[1_000][:percentage]).to be_around(3.9, error: error)
+        expect(tiers_experiments[3_000][:percentage]).to be_around(8.9, error: error)
+        expect(tiers_experiments[10_000][:percentage]).to be_around(31.2, error: error)
+        expect(tiers_experiments[30_000][:percentage]).to be_around(70.0, error: error)
       end
     end
   end

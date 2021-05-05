@@ -6,7 +6,8 @@ RSpec.describe LotteryService do
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,
-                                      blacklist: blacklist) }
+                                      blacklist: blacklist,
+                                      max_winners: LotteryService::MAX_WINNERS) }
 
   # NOTE: In this "small scenario" we exclude all the top holders and ignore the "privileged never winning" ratio,
   #       just to ease the probability calculations between all the "normal participants".
