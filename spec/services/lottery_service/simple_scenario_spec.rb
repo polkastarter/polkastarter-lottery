@@ -106,17 +106,21 @@ RSpec.describe LotteryService do
         stub_const 'LotteryService::MAX_WINNERS', 1
 
         top_winners = []
-        number_of_experiments = 100_000
+        number_of_experiments = 50_000
 
         # Run experiments
+        puts ""
         experiments = []
-        number_of_experiments.times do
+        number_of_experiments.times do |index|
           service = described_class.new(balances: balances,
                                         recent_winners: recent_winners,
                                         past_winners: past_winners,
-                                        blacklist: blacklist)
+                                        blacklist: blacklist,
+                                        max_winners: 1)
           service.run
           experiments << service.winners.map(&:address)
+
+          puts " performed experiment number #{index} of #{number_of_experiments} for a simple scenario" if index % (10_000) == 0
         end
 
         # Calulcate probabilities

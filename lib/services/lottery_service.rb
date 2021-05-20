@@ -12,6 +12,8 @@ class LotteryService
   attr_reader :participants     # only eligible ones
   attr_reader :winners          # only winners
   attr_reader :max_winners
+  attr_reader :top_holders
+  attr_reader :privileged_participants
 
   DEFAULT_MAX_WINNERS = 1_000.freeze
   TOP_N_HOLDERS = 10.freeze
@@ -27,8 +29,11 @@ class LotteryService
 
   def run
     @all_participants = build_participants.sort # sort desc by balance
-    @participants = all_participants.select { |participant| !top_holder?(participant) } # top holders are always excluded from shuffling because they will always enter
-    @participants = participants.select { |participant| participant.eligible? }.sort # sort desc by balance
+    @top_holders      = all_participants.first TOP_N_HOLDERS
+    @participants     = all_participants.select { |participant| !top_holder?(participant) } # top holders are always excluded from shuffling because they will always enter
+                                        .select { |participant| participant.eligible? }.sort # sort desc by balance
+
+    @privileged_participants = shuffled_privileged_participants
 
     @winners = calculate_winners
   end
@@ -60,15 +65,11 @@ class LotteryService
     winners.uniq.first(max_winners)
   end
 
-  def top_holders
-    all_participants.first TOP_N_HOLDERS
-  end
-
   def top_holder?(participant)
     top_holders.include? participant.address
   end
 
-  def privileged_participants
+  def shuffled_privileged_participants
     sample_size = max_winners * PRIVILEGED_NEVER_WINNING_RATIO
     never_winning_participants.sample sample_size
   end
