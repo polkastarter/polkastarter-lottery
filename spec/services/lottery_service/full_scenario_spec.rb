@@ -4,9 +4,9 @@ require_relative '../../../lib/services/lottery_service'
 
 RSpec.describe LotteryService do
   before do
-    stub_const 'LotteryService::MAX_WINNERS', 20
-    stub_const 'LotteryService::TOP_N_HOLDERS', 10
-    stub_const 'LotteryService::PRIVILEGED_NEVER_WINNING_RATIO', 0.10
+    stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 20
+    stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
+    stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0.10
     stub_const 'Participant::TICKET_PRICE', 250
     stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
     stub_const 'Participant::BALANCE_WEIGHTS', {
@@ -23,7 +23,7 @@ RSpec.describe LotteryService do
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,
                                       blacklist: blacklist,
-                                      max_winners: LotteryService::MAX_WINNERS) }
+                                      max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
 
   context 'given a specific context' do
     let(:past_winners) { ['0x005'] }

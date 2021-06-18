@@ -4,9 +4,9 @@ require_relative '../../../lib/services/lottery_service'
 
 RSpec.describe LotteryService do
   before do
-    stub_const 'LotteryService::MAX_WINNERS', 1000
-    stub_const 'LotteryService::TOP_N_HOLDERS', 10
-    stub_const 'LotteryService::PRIVILEGED_NEVER_WINNING_RATIO', 0.10
+    stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 1000
+    stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
+    stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0.10
     stub_const 'Participant::TICKET_PRICE', 250
     stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
     stub_const 'Participant::BALANCE_WEIGHTS', {
@@ -23,7 +23,7 @@ RSpec.describe LotteryService do
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,
                                       blacklist: blacklist,
-                                      max_winners: LotteryService::MAX_WINNERS) }
+                                      max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
 
   context 'given holders read from a CSV file with holders' do
     let(:past_winners) { [] }
@@ -43,9 +43,9 @@ RSpec.describe LotteryService do
 
         expect(service.all_participants.size).to                       eq(38_520)
         expect(service.participants.size).to                           eq(18_889)
-        expect(service.send(:top_holders).size).to                     eq(LotteryService::TOP_N_HOLDERS)
-        expect(service.send(:privileged_participants).size).to         eq(LotteryService::MAX_WINNERS * LotteryService::PRIVILEGED_NEVER_WINNING_RATIO) # i.e. 10% of 1000
-        expect(service.winners.size).to                                eq(LotteryService::MAX_WINNERS)
+        expect(service.send(:top_holders).size).to                     eq(LotteryService::DEFAULT_TOP_N_HOLDERS)
+        expect(service.send(:privileged_participants).size).to         eq(LotteryService::DEFAULT_MAX_WINNERS * LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO) # i.e. 10% of 1000
+        expect(service.winners.size).to                                eq(LotteryService::DEFAULT_MAX_WINNERS)
       end
 
       # TODO: refactor to a custom matcher:
@@ -86,7 +86,7 @@ RSpec.describe LotteryService do
             experiments_output << [index, winner.address, winner.balance, winner.weight, winner.tier, winner.tickets]
           end
 
-          expect(service.winners.size).to eq(LotteryService::MAX_WINNERS)
+          expect(service.winners.size).to eq(LotteryService::DEFAULT_MAX_WINNERS)
           puts "#{service.winners.size} winners for experiment #{index}"
 
           time_diff = Time.now.to_f - timestamp
@@ -107,8 +107,8 @@ RSpec.describe LotteryService do
 
         # Statistics
         puts ""
-        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::MAX_WINNERS} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE} POLS:"
-        puts " * Top #{LotteryService::TOP_N_HOLDERS} holders: #{probabilities_array.first[1] * 100 rescue 0}%"
+        puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::DEFAULT_MAX_WINNERS} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE} POLS:"
+        puts " * Top #{LotteryService::DEFAULT_TOP_N_HOLDERS} holders: #{probabilities_array.first[1] * 100 rescue 0}%"
         puts " * <250 POLS: #{stats_for(tiers_experiments[0], number_of_experiments)}"
         puts " * 250+ POLS: #{stats_for(tiers_experiments[250], number_of_experiments)}"
         puts " * 1k+ POLS:  #{stats_for(tiers_experiments[1_000], number_of_experiments)}"
@@ -117,10 +117,10 @@ RSpec.describe LotteryService do
         puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000], number_of_experiments)}"
 
         # Final veredict
-        expect(probabilities_hash.values.sum).to eq(LotteryService::MAX_WINNERS)
+        expect(probabilities_hash.values.sum).to eq(LotteryService::DEFAULT_MAX_WINNERS)
 
         # Top 10 holders have 100% probability to enter
-        top_n_holders = balances.first(LotteryService::TOP_N_HOLDERS).map(&:first)
+        top_n_holders = balances.first(LotteryService::DEFAULT_TOP_N_HOLDERS).map(&:first)
         top_n_holders.each do |address|
           expect(probabilities_hash[address]).to eq(1.0)
         end

@@ -12,16 +12,26 @@ class LotteryService
   attr_reader :participants     # only eligible ones
   attr_reader :winners          # only winners
   attr_reader :max_winners
+  attr_reader :top_n_holders
+  attr_reader :privileged_never_winning_ratio
   attr_reader :top_holders
   attr_reader :privileged_participants
 
   DEFAULT_MAX_WINNERS = 1_000.freeze
-  TOP_N_HOLDERS = 10.freeze
-  PRIVILEGED_NEVER_WINNING_RATIO = 0.10.freeze
+  DEFAULT_TOP_N_HOLDERS = 10.freeze
+  DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO = 0.10.freeze
 
-  def initialize(balances:, max_winners: DEFAULT_MAX_WINNERS, recent_winners: [], past_winners: [], blacklist: [])
-    @max_winners = max_winners
+  def initialize(balances:,
+                 max_winners: DEFAULT_MAX_WINNERS,
+                 top_n_holders: DEFAULT_TOP_N_HOLDERS,
+                 privileged_never_winning_ratio: DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO,
+                 recent_winners: [],
+                 past_winners: [],
+                 blacklist: [])
     @balances = balances
+    @max_winners = max_winners
+    @top_n_holders = top_n_holders
+    @privileged_never_winning_ratio = privileged_never_winning_ratio
     @recent_winners = recent_winners
     @past_winners = past_winners.map &:downcase
     @blacklist = blacklist
@@ -29,7 +39,7 @@ class LotteryService
 
   def run
     @all_participants = build_participants.sort # sort desc by balance
-    @top_holders      = all_participants.first TOP_N_HOLDERS
+    @top_holders      = all_participants.first top_n_holders
     @participants     = all_participants.select { |participant| !top_holder?(participant) } # top holders are always excluded from shuffling because they will always enter
                                         .select { |participant| participant.eligible? }.sort # sort desc by balance
 
@@ -70,7 +80,7 @@ class LotteryService
   end
 
   def shuffled_privileged_participants
-    sample_size = max_winners * PRIVILEGED_NEVER_WINNING_RATIO
+    sample_size = max_winners * privileged_never_winning_ratio
     never_winning_participants.sample sample_size
   end
 
