@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'polkastarter-lottery'
-  s.version     = '1.1.0'
+  s.version     = '1.1.1'
   s.summary     = "Polkastarter Lottery"
   s.description = "The Polkastarter Lottery calculation system"
   s.authors     = ["Polkastarter", "Miguel"]

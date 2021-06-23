@@ -45,7 +45,7 @@ class LotteryService
 
     @privileged_participants = shuffled_privileged_participants
 
-    @winners = calculate_winners
+    @winners = calculate_winners.compact
   end
 
   # Only used for statistics and debugging
