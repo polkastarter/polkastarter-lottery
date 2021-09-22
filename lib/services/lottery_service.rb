@@ -39,9 +39,10 @@ class LotteryService
 
   def run
     @all_participants = build_participants.sort # sort desc by balance
-    @top_holders      = all_participants.first top_n_holders
-    @participants     = all_participants.select { |participant| !top_holder?(participant) } # top holders are always excluded from shuffling because they will always enter
-                                        .select { |participant| participant.eligible? }.sort # sort desc by balance
+    eligibles         = all_participants.select(&:eligible?)
+    @top_holders      = eligibles.first top_n_holders
+    @participants     = eligibles.select { |participant| !top_holder?(participant) }.sort # top holders are always excluded from shuffling because they will always enter
+                                                                                          # also order them by balance
 
     @privileged_participants = shuffled_privileged_participants
 

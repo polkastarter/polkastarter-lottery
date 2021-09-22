@@ -1,3 +1,7 @@
+# 1.1.2: 22.Sep.2021: Minor bugfix
+
+* Bugfix: Do not count as top holder if the participants list is smallers than 10
+
 # 1.1.1: 23.Jun.2021: Minor bugfix
 
 * Bugfix: Fix a minor issue when there are no winners, a [nil] was returned.
