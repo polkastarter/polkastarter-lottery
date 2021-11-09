@@ -7,7 +7,9 @@ RSpec.describe LotteryService do
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,
                                       blacklist: blacklist,
-                                      max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
+                                      max_winners: LotteryService::DEFAULT_MAX_WINNERS,
+                                      nft_tier1_holders: nft_tier1_holders,
+                                      nft_tier2_holders: nft_tier2_holders) }
 
   # NOTE: In this "small scenario" we exclude all the top holders and ignore the "privileged never winning" ratio,
   #       just to ease the probability calculations between all the "normal participants".
@@ -31,22 +33,26 @@ RSpec.describe LotteryService do
     end
 
     let(:past_winners)   { ['0x555'] }
-    let(:recent_winners) { ['0x666', '0x777'] }
+    let(:recent_winners) { ['0x666', '0x777', '0x020'] }
     let(:blacklist)      { ['0x888'] }
+    let(:nft_tier1_holders) { ['0x010'] }
+    let(:nft_tier2_holders) { ['0x020'] }
     let(:balances) {
       {
         '0x111' => 249,           # not enough balance
         '0x222' => 250,           # eligible. never participated
         '0x333' => 1_000,         # eligible. never participated
         '0x444' => 3_000,         # eligible. never participated
-        '0x555' => 3_000,         # eligible. previous winner.
+        '0x555' => 3_000,         # eligible. previous winner, but not recent winner (i.e. not in cooldown period)
                                   # So, it would not be used in the calculation of the privileged participants
                                   # However, in these simple scenario of tests we're ignoring it
                                   # because we have PRIVILEGED_NEVER_WINNING_RATIO set to 0
-        '0x666' => 3_000,         # excluded. recent winner
-        '0x777' => 30_000,        # eligible. recent winner.
+        '0x666' => 3_000,         # excluded. recent winner (i.e. in a cooldown period)
+        '0x777' => 30_000,        # eligible. recent winner (i.e. in a cooldown period), but skips cool down
                                   # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
-        '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc
+        '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc,
+        '0x020' => 0,             # eligible. has 0 POLS, but has a rare NFT
+        '0x020' => 3_000          # eligible. recent winner (i.e. in a cooldown period). However, it holds an NFT, so it bypasses the cool down period
       }
     }
 
@@ -58,14 +64,26 @@ RSpec.describe LotteryService do
           "#{participant.address} -> #{participant.tickets.round(4)}"
         end
 
-        expect(service.participants.sum(&:tickets)).to eq(183)
+        expect(service.participants.sum(&:tickets)).to eq(196.8)
         expect(tickets).to match_array([
           '0x222 -> 1.0',
           '0x333 -> 4.4',
           '0x444 -> 13.8',
           '0x555 -> 13.8',
-          '0x777 -> 150.0'
+          '0x777 -> 150.0',
+          # 0x010 do not appear because is a nft tier 1 holder, so always wins
+          '0x020 -> 13.8'
         ])
+      end
+    end
+
+    describe '#eligibles' do
+      it 'returns the list of all eligible participants' do
+        service.run
+
+        expect(service.eligibles.map(&:address)).to match_array(%w(
+          0x222 0x333 0x444 0x555 0x777 0x010 0x020
+        ))
       end
     end
 
@@ -82,7 +100,9 @@ RSpec.describe LotteryService do
           '0x333 -> 1.1',
           '0x444 -> 1.15',
           '0x555 -> 1.15',
-          '0x777 -> 1.25'
+          '0x777 -> 1.25',
+          # 0x010 do not appear because is a nft tier 1 holder, so always wins
+          '0x020 -> 1.15'
         ])
       end
     end
@@ -96,7 +116,9 @@ RSpec.describe LotteryService do
           '0x333',
           '0x444',
           '0x555',
-          '0x777'
+          '0x777',
+          '0x010',
+          '0x020'
         ])
       end
 

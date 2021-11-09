@@ -1,6 +1,7 @@
 #require_relative '../models/participant'
 #require File.dirname(__FILE__) + '/../models/participant'
 require 'models/participant'
+require 'pry'
 
 class LotteryService
   attr_reader :balances          # e.g: { '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' => 3000 }
@@ -11,7 +12,8 @@ class LotteryService
   attr_reader :nft_tier2_holders # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'] # common NFT
 
   attr_reader :all_participants # all candidates
-  attr_reader :participants     # only eligible ones
+  attr_reader :eligibles        # only eligible ones
+  attr_reader :participants     # only the list of wallets that will be actually shuffled (i.e. excluding top holders and nft tier1 holders)
   attr_reader :winners          # only winners
   attr_reader :max_winners
   attr_reader :top_n_holders
@@ -45,10 +47,11 @@ class LotteryService
 
   def run
     @all_participants = build_participants.sort # sort desc by balance
-    eligibles         = all_participants.select(&:eligible?)
-    @top_holders      = eligibles.first top_n_holders
-    @participants     = eligibles.select { |participant| !top_holder?(participant) }.sort # top holders are always excluded from shuffling because they will always enter
-                                                                                          # also order them by balance
+    @eligibles        = all_participants.select(&:eligible?)
+    @top_holders      = @eligibles.first top_n_holders
+    @participants     = @eligibles.reject do |participant|
+      top_holder?(participant) || participant.nft_tier1_holder # top holders and nft1 holders are always excluded from shuffling because they will always enter
+    end.sort # also order them by balance
 
     @privileged_participants = shuffled_privileged_participants
 
@@ -109,15 +112,14 @@ class LotteryService
   end
 
   def nft_tier1_participants
-    participants.select { |participant| participant.nft_tier1_holder }
-  end
-
-  def nft_tier2_participants
-    participants.select { |participant| participant.nft_tier2_holder }
+    eligibles.select { |participant| participant.nft_tier1_holder }
   end
 
   def build_participants
-    balances.map do |address, balance|
+    nft_tier1_balances = nft_tier1_holders.map { |addr| [addr, nil] }.to_h
+    all_balances = balances.merge(nft_tier1_balances)
+
+    all_balances.map do |address, balance|
       next if blacklist.include? address
       Participant.new address:          address,
                       balance:          balance,
