@@ -51,7 +51,7 @@ RSpec.describe LotteryService do
         '0x777' => 30_000,        # eligible. recent winner (i.e. in a cooldown period), but skips cool down
                                   # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
         '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc,
-        '0x020' => 0,             # eligible. has 0 POLS, but has a rare NFT
+        '0x010' => 0,             # eligible. has 0 POLS, but has a rare NFT
         '0x020' => 3_000          # eligible. recent winner (i.e. in a cooldown period). However, it holds an NFT, so it bypasses the cool down period
       }
     }
