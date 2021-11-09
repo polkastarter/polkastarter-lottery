@@ -3,10 +3,12 @@
 require 'models/participant'
 
 class LotteryService
-  attr_reader :balances         # e.g: { '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' => 3000 }
-  attr_reader :recent_winners   # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
-  attr_reader :past_winners     # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
-  attr_reader :blacklist        # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
+  attr_reader :balances          # e.g: { '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' => 3000 }
+  attr_reader :recent_winners    # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
+  attr_reader :past_winners      # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
+  attr_reader :blacklist         # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
+  attr_reader :nft_tier1_holders # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'] # rare NFT
+  attr_reader :nft_tier2_holders # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'] # common NFT
 
   attr_reader :all_participants # all candidates
   attr_reader :participants     # only eligible ones
@@ -27,7 +29,9 @@ class LotteryService
                  privileged_never_winning_ratio: DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO,
                  recent_winners: [],
                  past_winners: [],
-                 blacklist: [])
+                 blacklist: [],
+                 nft_tier1_holders: [],
+                 nft_tier2_holders: [])
     @balances = balances
     @max_winners = max_winners
     @top_n_holders = top_n_holders
@@ -35,6 +39,8 @@ class LotteryService
     @recent_winners = recent_winners
     @past_winners = past_winners.map &:downcase
     @blacklist = blacklist
+    @nft_tier1_holders = nft_tier1_holders
+    @nft_tier2_holders = nft_tier2_holders
   end
 
   def run
@@ -70,6 +76,7 @@ class LotteryService
     winners = []
 
     winners += top_holders
+    winners += nft_tier1_participants
     winners += privileged_participants
     winners += shuffled_eligible_participants
 
@@ -98,17 +105,25 @@ class LotteryService
   end
 
   def never_winning_participants
-    participants.select do |participant|
-      !past_winners.include? participant.address
-    end
+    participants.select { |participant| !past_winners.include? participant.address }
+  end
+
+  def nft_tier1_participants
+    participants.select { |participant| participant.nft_tier1_holder }
+  end
+
+  def nft_tier2_participants
+    participants.select { |participant| participant.nft_tier2_holder }
   end
 
   def build_participants
     balances.map do |address, balance|
       next if blacklist.include? address
-      Participant.new address:       address,
-                      balance:       balance,
-                      recent_winner: recent_winners.include?(address)
+      Participant.new address:          address,
+                      balance:          balance,
+                      recent_winner:    recent_winners.include?(address),
+                      nft_tier1_holder: nft_tier1_holders.include?(address),
+                      nft_tier2_holder: nft_tier2_holders.include?(address)
     end.compact
   end
 end
