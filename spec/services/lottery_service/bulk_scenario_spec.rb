@@ -19,6 +19,10 @@ RSpec.describe LotteryService do
     }
   end
 
+  before do
+    skip if ENV['SKIP_BULK_SPECS']
+  end
+
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
                                       past_winners: past_winners,

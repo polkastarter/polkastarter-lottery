@@ -38,8 +38,8 @@ RSpec.describe LotteryService do
         '0x004' =>  3_000, # should be eligible. never participated
         '0x005' =>  3_000, # should be eligible. previous winner.
                            # so, it is not used in the calculation of the privileged participants
-        '0x006' =>  3_000, # should be excluded. previous participant
-        '0x007' => 30_000, # should be eligible. previous participant. 
+        '0x006' =>  3_000, # should be excluded. recent winner (in a cool down period)
+        '0x007' => 30_000, # should be eligible. recent winner (in a cool down period)
                            # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
         '0x008' => 99_999, # should be excluded (always). e.g: a Polkastarter team address, an exchange, etc
         '0x009' =>  5_000, # should be eligible. never participated
@@ -55,7 +55,8 @@ RSpec.describe LotteryService do
         '0x017' => 10_007, # should be eligible
         '0x018' => 10_008, # should be eligible
         '0x019' => 10_009, # should be eligible
-        '0x020' => 10_010, # should be eligible
+        '0x020' => 10_010, # should be excluded. recent winner (in a cool down period)
+        '0x021' => 10_011, # should be excluded
         # ----------------
         '0x030' =>  3_000, # should be eligible. never participated
         '0x031' =>  3_000, # should be eligible. never participated
@@ -79,17 +80,20 @@ RSpec.describe LotteryService do
 
         expect(top_holders.size).to eq(10)
         expect(top_holders).to eq([ # Note: order matters here:
-          '0x007', # holds 30 000 POLS
-          '0x020', # holds 10 010 POLS
-          '0x019', # holds 10 009 POLS
-          '0x018', # holds 10 008 POLS
-          '0x017', # holds 10 007 POLS
-          '0x016', # holds 10 006 POLS
-          '0x015', # holds 10 005 POLS
-          '0x014', # holds 10 004 POLS
-          '0x013', # holds 10 003 POLS
-          '0x012', # holds 10 002 POLS
-          # 0x011  # holds 10 001 POLS, so is out
+          '0x007',   # holds 30 000 POLS - top holder 1
+          '0x021',   # holds 10 011 POLS - top holder 2
+          # '0x020', # holds 10 010 POLS - it is excluded because is a recent winner (cool down period) so, not eligible
+          '0x019',   # holds 10 009 POLS - top holder 3
+          '0x018',   # holds 10 008 POLS - top holder 4
+          '0x017',   # holds 10 007 POLS - top holder 5
+          '0x016',   # holds 10 006 POLS - top holder 6
+          '0x015',   # holds 10 005 POLS - top holder 7
+          '0x014',   # holds 10 004 POLS - top holder 8
+          '0x013',   # holds 10 003 POLS - top holder 9
+          '0x012',   # holds 10 002 POLS - top holder 10
+          # '0x011',   # holds 10 001 POLS - top holder 10
+          # '0x009', # holds  5 000 POLS - it is not a top holder because it is the 11th holder
+          # '0x010'  # holds  5 000 POLS - it is not a top holder because it is the 12th holder
         ])
       end
     end
@@ -126,6 +130,7 @@ RSpec.describe LotteryService do
           "0x019 -> 48.0",
           # 0x020            # is a recent winner, so it should not be eligible, thus has no tickets.
                              # However, in the end, as a top holder, exceptionally, it will be a winner
+          "0x021 -> 48.0",
           # -------------
           "0x030 -> 13.8",
           "0x031 -> 13.8",
@@ -174,6 +179,7 @@ RSpec.describe LotteryService do
           "0x019 -> 1.2",
           # 0x020            # is a recent winner, so it should not be eligible, thus has no tickets.
           #                  # However, in the end, as a top holder, exceptionally, it will be a winner
+          "0x021 -> 1.2",
           # -------------
           "0x030 -> 1.15",
           "0x031 -> 1.15",
@@ -209,7 +215,7 @@ RSpec.describe LotteryService do
         probabilities = occurences.transform_values { |value| value.to_f / number_of_experiments }
 
         # Calculate if all addresses match the expected probability
-        error_margin = 0.02
+        error_margin = 0.025
         expected_probabilities = {
           "0x001" => 0,
           # -------------
@@ -224,15 +230,16 @@ RSpec.describe LotteryService do
           "0x010" => 0.7250,
           # -------------
           "0x011" => 0.9210, # holds a lot (almost the same as top 10 holders). however, has a little bit less probability because it is not a top 10 holder
-          "0x012" => 1.0,    # always appear because is a top 10 holder
-          "0x013" => 1.0,    # always appear because is a top 10 holder
-          "0x014" => 1.0,    # always appear because is a top 10 holder
-          "0x015" => 1.0,    # always appear because is a top 10 holder
-          "0x016" => 1.0,    # always appear because is a top 10 holder
-          "0x017" => 1.0,    # always appear because is a top 10 holder
-          "0x018" => 1.0,    # always appear because is a top 10 holder
-          "0x019" => 1.0,    # always appear because is a top 10 holder
-          "0x020" => 1.0,    # always appear because is a top 10 holder
+          "0x012" => 1.0,    # always appear because is a top 10 holder 1
+          "0x013" => 1.0,    # always appear because is a top 10 holder 2
+          "0x014" => 1.0,    # always appear because is a top 10 holder 3
+          "0x015" => 1.0,    # always appear because is a top 10 holder 4
+          "0x016" => 1.0,    # always appear because is a top 10 holder 5
+          "0x017" => 1.0,    # always appear because is a top 10 holder 6
+          "0x018" => 1.0,    # always appear because is a top 10 holder 7
+          "0x019" => 1.0,    # always appear because is a top 10 holder 8
+          "0x020" => 1.0,    # always appear because is a top 10 holder 9
+          "0x021" => 1.0,    # always appear because is a top 10 holder 10
           # -------------
           "0x030" => 0.5547,
           "0x031" => 0.5549,
