@@ -8,8 +8,8 @@ RSpec.describe LotteryService do
                                       past_winners: past_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS,
-                                      nft_tier1_holders: nft_tier1_holders,
-                                      nft_tier2_holders: nft_tier2_holders) }
+                                      nft_rare_holders: nft_rare_holders,
+                                      nft_common_holders: nft_common_holders) }
 
   # NOTE: In this "small scenario" we exclude all the top holders and ignore the "privileged never winning" ratio,
   #       just to ease the probability calculations between all the "normal participants".
@@ -35,8 +35,8 @@ RSpec.describe LotteryService do
     let(:past_winners)   { ['0x555'] }
     let(:recent_winners) { ['0x666', '0x777', '0x020'] }
     let(:blacklist)      { ['0x888'] }
-    let(:nft_tier1_holders) { ['0x010'] }
-    let(:nft_tier2_holders) { ['0x020'] }
+    let(:nft_rare_holders) { ['0x010'] }
+    let(:nft_common_holders) { ['0x020'] }
     let(:balances) {
       {
         '0x111' => 249,           # not enough balance
