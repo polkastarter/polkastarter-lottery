@@ -9,7 +9,7 @@ class Participant
 
   def initialize(address:, balance:, recent_winner:, nft_rare_holder: false, nft_common_holder: false)
     @address = address.downcase
-    @balance = balance || 0
+    @balance = (balance && balance >= 0) ? balance : 0 # guarding against invalid balances
     @recent_winner = recent_winner
     @nft_rare_holder = nft_rare_holder
     @nft_common_holder = nft_common_holder
