@@ -1,3 +1,11 @@
+# 1.2.1: 4.Jan.2022: Improvement: Guard against invalid balances
+
+* Add guard against invalid balances
+
+# 1.2.0: 17 Nov 2021: Add support for NFTs
+
+* Feature: Add support for NFTs
+
 # 1.1.2: 22.Sep.2021: Minor bugfix
 
 * Bugfix: Do not count as top holder if the participants list is smallers than 10
