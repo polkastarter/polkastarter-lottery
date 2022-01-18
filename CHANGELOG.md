@@ -1,3 +1,7 @@
+# 1.2.2: 18.Jan.2022: Disable never-winning ratio by default
+
+* Disable never-winning ratio by default, as we're not using it anymore for a long time
+
 # 1.2.1: 4.Jan.2022: Improvement: Guard against invalid balances
 
 * Add guard against invalid balances
