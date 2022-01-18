@@ -23,7 +23,7 @@ class LotteryService
 
   DEFAULT_MAX_WINNERS = 1_000.freeze
   DEFAULT_TOP_N_HOLDERS = 10.freeze
-  DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO = 0.freeze
+  DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO = 0.0.freeze
 
   def initialize(balances:,
                  max_winners: DEFAULT_MAX_WINNERS,
