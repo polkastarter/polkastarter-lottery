@@ -17,9 +17,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
       - name: Set up Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.4
+          bundler-cache: true
       - name: Cache Ruby Gems
         uses: actions/cache@v2
         with:
