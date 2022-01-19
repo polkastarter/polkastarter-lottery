@@ -32,7 +32,7 @@ jobs:
           bundle install --jobs 4 --retry 3
       - name: Set environment for branch
         run: |
-          if [[ $GITHUB_REF != 'refs/heads/master' ]]; then
+          if [[ $GITHUB_REF != 'refs/heads/master' && $GITHUB_REF != 'refs/heads/development' ]]; then
             echo "SKIP_BULK_SPECS=true" >> "$GITHUB_ENV"
           fi
       - name: Run Tests
