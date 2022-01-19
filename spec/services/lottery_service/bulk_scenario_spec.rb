@@ -6,7 +6,7 @@ RSpec.describe LotteryService do
   before do
     stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 1000
     stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
-    stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0.10
+    stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0.0
     stub_const 'Participant::TICKET_PRICE', 250
     stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
     stub_const 'Participant::BALANCE_WEIGHTS', {
@@ -45,8 +45,8 @@ RSpec.describe LotteryService do
       it 'runs and generates an expected number of participants, of winners and intermediate sizes' do
         service.run
 
-        expect(service.all_participants.size).to                       eq(38_520)
-        expect(service.participants.size).to                           eq(18_889)
+        expect(service.all_participants.size).to                       eq(38_191) # total participants, excluding potential whales (stored on whales.csv)
+        expect(service.participants.size).to                           eq(18_508) # eligible participants only
         expect(service.send(:top_holders).size).to                     eq(LotteryService::DEFAULT_TOP_N_HOLDERS)
         expect(service.send(:privileged_participants).size).to         eq(LotteryService::DEFAULT_MAX_WINNERS * LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO) # i.e. 10% of 1000
         expect(service.winners.size).to                                eq(LotteryService::DEFAULT_MAX_WINNERS)
@@ -64,7 +64,7 @@ RSpec.describe LotteryService do
 
       it 'runs and generates the expected probabilites for some key holders' do
         number_of_experiments = 50
-        error = 0.015
+        error = 0.25
 
         # Run experiments
         experiments = []
@@ -109,7 +109,7 @@ RSpec.describe LotteryService do
         probabilities_hash = occurences.transform_values { |value| value.to_f / number_of_experiments }
         probabilities_array = probabilities_hash.sort_by { |address, probability| probability }.reverse
 
-        # Statistics
+        # Print Statistics
         puts ""
         puts "Probabilities for #{number_of_experiments} experiments (#{LotteryService::DEFAULT_MAX_WINNERS} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE} POLS:"
         puts " * Top #{LotteryService::DEFAULT_TOP_N_HOLDERS} holders: #{probabilities_array.first[1] * 100 rescue 0}%"
@@ -120,22 +120,37 @@ RSpec.describe LotteryService do
         puts " * 10k+ POLS: #{stats_for(tiers_experiments[10_000], number_of_experiments)}"
         puts " * 30k+ POLS: #{stats_for(tiers_experiments[30_000], number_of_experiments)}"
 
+        # Print tier probabilities
+        puts ""
+        puts "Tier Probabilities:"
+        puts "Tier 0   POLS: #{tiers_experiments[0][:percentage]}"
+        puts "Tier 250 POLS: #{tiers_experiments[250][:percentage]}"
+        puts "Tier 1k  POLS: #{tiers_experiments[1_000][:percentage]}"
+        puts "Tier 3k  POLS: #{tiers_experiments[3_000][:percentage]}"
+        puts "Tier 10k POLS: #{tiers_experiments[10_000][:percentage]}"
+        puts "Tier 30k POLS: #{tiers_experiments[30_000][:percentage]}"
+
+        # Print top holders
+        balances_without_whales = balances.reject { |(addr, _)| blacklist.include?(addr) }
+        top_holders = balances_without_whales.sort_by { |(k,v)| v }.last(LotteryService::DEFAULT_TOP_N_HOLDERS).map(&:first)
+        top_holders.each { |address| puts "#{address}: #{probabilities_hash[address]}" }
+
         # Final veredict
         expect(probabilities_hash.values.sum).to eq(LotteryService::DEFAULT_MAX_WINNERS)
 
+        # Whales are not included in tol holders
+        expect((top_holders - blacklist).count).to eq(10)
+
         # Top 10 holders have 100% probability to enter
-        top_n_holders = balances.first(LotteryService::DEFAULT_TOP_N_HOLDERS).map(&:first)
-        top_n_holders.each do |address|
-          expect(probabilities_hash[address]).to eq(1.0)
-        end
+        top_holders.each { |address| expect(probabilities_hash[address]).to eq(1.0) }
 
         # Expect specific percentage of winners per each tier
         expect(tiers_experiments[0][:percentage]).to be_nan
-        expect(tiers_experiments[250][:percentage]).to be_around(1.3, error: error)
-        expect(tiers_experiments[1_000][:percentage]).to be_around(3.9, error: error)
-        expect(tiers_experiments[3_000][:percentage]).to be_around(8.9, error: error)
-        expect(tiers_experiments[10_000][:percentage]).to be_around(31.2, error: error)
-        expect(tiers_experiments[30_000][:percentage]).to be_around(70.0, error: error)
+        expect(tiers_experiments[250][:percentage]).to    be_around(0.96,  error: error)
+        expect(tiers_experiments[1_000][:percentage]).to  be_around(4.15,  error: error)
+        expect(tiers_experiments[3_000][:percentage]).to  be_around(10.25, error: error)
+        expect(tiers_experiments[10_000][:percentage]).to be_around(37.70, error: error)
+        expect(tiers_experiments[30_000][:percentage]).to be_around(76.15, error: error)
       end
     end
   end
