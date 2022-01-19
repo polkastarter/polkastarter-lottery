@@ -30,8 +30,11 @@ jobs:
       - name: Bundle Install
         run: |
           bundle install --jobs 4 --retry 3
+      - name: Set environment for branch
+        run: |
+          if [[ $GITHUB_REF != 'refs/heads/master' ]]; then
+            echo "SKIP_BULK_SPECS=true" >> "$GITHUB_ENV"
+          fi
       - name: Run Tests
-        env:
-          SKIP_BULK_SPECS: true
         run: |
           bundle exec rspec
