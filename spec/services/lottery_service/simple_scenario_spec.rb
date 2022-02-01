@@ -7,8 +7,7 @@ RSpec.describe LotteryService do
                                       recent_winners: recent_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS,
-                                      nft_rare_holders: nft_rare_holders,
-                                      nft_common_holders: nft_common_holders) }
+                                      nft_rare_holders: nft_rare_holders) }
 
   # NOTE: In this "small scenario" we exclude all the top holders and ignore the "privileged never winning" ratio,
   #       just to ease the probability calculations between all the "normal participants".
@@ -33,7 +32,6 @@ RSpec.describe LotteryService do
     let(:recent_winners) { ['0x666', '0x777', '0x020'] }
     let(:blacklist)      { ['0x888'] }
     let(:nft_rare_holders) { ['0x010'] }
-    let(:nft_common_holders) { ['0x020'] }
     let(:balances) {
       {
         '0x111' => 249,           # not enough balance
@@ -46,7 +44,7 @@ RSpec.describe LotteryService do
                                   # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
         '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc,
         '0x010' => 0,             # eligible. has 0 POLS, but has a rare NFT
-        '0x020' => 3_000          # eligible. recent winner (i.e. in a cooldown period). However, it holds an NFT, so it bypasses the cool down period
+        '0x020' => 3_000          # eligible. recent winner (i.e. in a cooldown period)
       }
     }
 
@@ -58,7 +56,7 @@ RSpec.describe LotteryService do
           "#{participant.address} -> #{participant.tickets.round(4)}"
         end
 
-        expect(service.participants.sum(&:tickets)).to eq(196.8)
+        expect(service.participants.sum(&:tickets)).to eq(183.0)
         expect(tickets).to match_array([
           '0x222 -> 1.0',
           '0x333 -> 4.4',
@@ -66,7 +64,6 @@ RSpec.describe LotteryService do
           '0x555 -> 13.8',
           '0x777 -> 150.0',
           # 0x010 do not appear because is a nft tier 1 holder, so always wins
-          '0x020 -> 13.8'
         ])
       end
     end
@@ -76,7 +73,7 @@ RSpec.describe LotteryService do
         service.run
 
         expect(service.eligibles.map(&:address)).to match_array(%w(
-          0x222 0x333 0x444 0x555 0x777 0x010 0x020
+          0x222 0x333 0x444 0x555 0x777 0x010
         ))
       end
     end
@@ -94,9 +91,8 @@ RSpec.describe LotteryService do
           '0x333 -> 1.1',
           '0x444 -> 1.15',
           '0x555 -> 1.15',
-          '0x777 -> 1.25',
+          '0x777 -> 1.25'
           # 0x010 do not appear because is a nft tier 1 holder, so always wins
-          '0x020 -> 1.15'
         ])
       end
     end
@@ -111,8 +107,7 @@ RSpec.describe LotteryService do
           '0x444',
           '0x555',
           '0x777',
-          '0x010',
-          '0x020'
+          '0x010'
         ])
       end
 

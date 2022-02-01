@@ -8,7 +8,6 @@ class LotteryService
   attr_reader :recent_winners     # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
   attr_reader :blacklist          # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
   attr_reader :nft_rare_holders   # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'] # rare NFT
-  attr_reader :nft_common_holders # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'] # common NFT
 
   attr_reader :all_participants # all candidates
   attr_reader :eligibles        # only eligible ones
@@ -29,8 +28,7 @@ class LotteryService
                  recent_winners: [],
                  past_winners: [],
                  blacklist: [],
-                 nft_rare_holders: [],
-                 nft_common_holders: [])
+                 nft_rare_holders: [])
     @balances = balances
     @max_winners = max_winners
     @top_n_holders = top_n_holders
@@ -38,7 +36,6 @@ class LotteryService
     @past_winners = past_winners.map &:downcase
     @blacklist = blacklist
     @nft_rare_holders = nft_rare_holders
-    @nft_common_holders = nft_common_holders
     @seed = seed
   end
 
@@ -111,8 +108,7 @@ class LotteryService
       Participant.new address:           address,
                       balance:           balance,
                       recent_winner:     recent_winners.include?(address),
-                      nft_rare_holder:   nft_rare_holders.include?(address),
-                      nft_common_holder: nft_common_holders.include?(address)
+                      nft_rare_holder:   nft_rare_holders.include?(address)
     end.compact
   end
 end

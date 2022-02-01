@@ -5,14 +5,12 @@ class Participant
   attr_reader :balance
   attr_reader :recent_winner
   attr_reader :nft_rare_holder
-  attr_reader :nft_common_holder
 
-  def initialize(address:, balance:, recent_winner:, nft_rare_holder: false, nft_common_holder: false)
+  def initialize(address:, balance:, recent_winner:, nft_rare_holder: false)
     @address = address.downcase
     @balance = (balance && balance >= 0) ? balance : 0 # guarding against invalid balances
     @recent_winner = recent_winner
     @nft_rare_holder = nft_rare_holder
-    @nft_common_holder = nft_common_holder
   end
 
   TICKET_PRICE = 250.freeze                   # e.g: 100 means 1 ticket = 100 POLS
@@ -45,7 +43,7 @@ class Participant
   end
 
   def in_cooldown_period?
-    return false if nft_rare_holder || nft_common_holder || balance >= NO_COOLDOWN_MINIMUM_BALANCE
+    return false if nft_rare_holder || balance >= NO_COOLDOWN_MINIMUM_BALANCE
 
     recent_winner
   end
