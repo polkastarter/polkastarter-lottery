@@ -17,11 +17,13 @@ class LotteryService
   attr_reader :max_winners
   attr_reader :top_n_holders
   attr_reader :top_holders
+  attr_reader :seed
 
   DEFAULT_MAX_WINNERS = 1_000.freeze
   DEFAULT_TOP_N_HOLDERS = 10.freeze
 
   def initialize(balances:,
+                 seed: nil,
                  max_winners: DEFAULT_MAX_WINNERS,
                  top_n_holders: DEFAULT_TOP_N_HOLDERS,
                  recent_winners: [],
@@ -37,9 +39,12 @@ class LotteryService
     @blacklist = blacklist
     @nft_rare_holders = nft_rare_holders
     @nft_common_holders = nft_common_holders
+    @seed = seed
   end
 
   def run
+    srand @seed unless @seed.nil?
+
     @all_participants = build_participants.sort # sort desc by balance
     @eligibles        = all_participants.select(&:eligible?)
     @top_holders      = @eligibles.first top_n_holders
