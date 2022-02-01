@@ -26,14 +26,12 @@ class LotteryService
                  max_winners: DEFAULT_MAX_WINNERS,
                  top_n_holders: DEFAULT_TOP_N_HOLDERS,
                  recent_winners: [],
-                 past_winners: [],
                  blacklist: [],
                  nft_rare_holders: [])
     @balances = balances
     @max_winners = max_winners
     @top_n_holders = top_n_holders
     @recent_winners = recent_winners
-    @past_winners = past_winners.map &:downcase
     @blacklist = blacklist
     @nft_rare_holders = nft_rare_holders
     @seed = seed
