@@ -5,7 +5,6 @@ require 'pry'
 
 class LotteryService
   attr_reader :balances           # e.g: { '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' => 3000 }
-  attr_reader :recent_winners     # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
   attr_reader :blacklist          # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
   attr_reader :nft_rare_holders   # e.g: ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'] # rare NFT
 
@@ -25,13 +24,11 @@ class LotteryService
                  seed: nil,
                  max_winners: DEFAULT_MAX_WINNERS,
                  top_n_holders: DEFAULT_TOP_N_HOLDERS,
-                 recent_winners: [],
                  blacklist: [],
                  nft_rare_holders: [])
     @balances = balances
     @max_winners = max_winners
     @top_n_holders = top_n_holders
-    @recent_winners = recent_winners
     @blacklist = blacklist
     @nft_rare_holders = nft_rare_holders
     @seed = seed
@@ -105,7 +102,6 @@ class LotteryService
       next if blacklist.include? address
       Participant.new address:           address,
                       balance:           balance,
-                      recent_winner:     recent_winners.include?(address),
                       nft_rare_holder:   nft_rare_holders.include?(address)
     end.compact
   end

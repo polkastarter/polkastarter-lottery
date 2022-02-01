@@ -7,7 +7,6 @@ RSpec.describe LotteryService do
     stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 20
     stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
     stub_const 'Participant::TICKET_PRICE', 250
-    stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
     stub_const 'Participant::BALANCE_WEIGHTS', {
       0      => 0.00,
       250    => 1.00,
@@ -19,12 +18,10 @@ RSpec.describe LotteryService do
   end
 
   let(:service) { described_class.new(balances: balances,
-                                      recent_winners: recent_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
 
   context 'given a specific context' do
-    let(:recent_winners) { ['0x006', '0x007', '0x020'] }
     let(:blacklist) { ['0x008'] }
     let(:balances) {
       {
@@ -34,9 +31,7 @@ RSpec.describe LotteryService do
         '0x003' =>  1_000, # should be eligible. never participated
         '0x004' =>  3_000, # should be eligible. never participated
         '0x005' =>  3_000, # should be eligible.
-        '0x006' =>  3_000, # should be excluded. recent winner (in a cool down period)
-        '0x007' => 30_000, # should be eligible. recent winner (in a cool down period)
-                           # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
+        '0x007' => 30_000, # should be eligible.
         '0x008' => 99_999, # should be excluded (always). e.g: a Polkastarter team address, an exchange, etc
         '0x009' =>  5_000, # should be eligible. never participated
         '0x010' =>  5_000, # should be eligible. never participated
@@ -51,7 +46,6 @@ RSpec.describe LotteryService do
         '0x017' => 10_007, # should be eligible
         '0x018' => 10_008, # should be eligible
         '0x019' => 10_009, # should be eligible
-        '0x020' => 10_010, # should be excluded. recent winner (in a cool down period)
         '0x021' => 10_011, # should be excluded
         # ----------------
         '0x030' =>  3_000, # should be eligible. never participated
@@ -78,7 +72,6 @@ RSpec.describe LotteryService do
         expect(top_holders).to eq([ # Note: order matters here:
           '0x007',   # holds 30 000 POLS - top holder 1
           '0x021',   # holds 10 011 POLS - top holder 2
-          # '0x020', # holds 10 010 POLS - it is excluded because is a recent winner (cool down period) so, not eligible
           '0x019',   # holds 10 009 POLS - top holder 3
           '0x018',   # holds 10 008 POLS - top holder 4
           '0x017',   # holds 10 007 POLS - top holder 5
@@ -109,7 +102,6 @@ RSpec.describe LotteryService do
           "0x003 -> 4.4",
           "0x004 -> 13.8",
           "0x005 -> 13.8",
-          # 0x006            # is out because it is a recent winner 
           "0x007 -> 150.0",  # is present because has >= 30 000 POLS
           # 0x008            # is excluded because it a blacklisted address
           "0x009 -> 23.0",
@@ -124,7 +116,6 @@ RSpec.describe LotteryService do
           "0x017 -> 48.0",
           "0x018 -> 48.0",
           "0x019 -> 48.0",
-          # 0x020            # is a recent winner, so it should not be eligible, thus has no tickets.
                              # However, in the end, as a top holder, exceptionally, it will be a winner
           "0x021 -> 48.0",
           # -------------
@@ -158,7 +149,6 @@ RSpec.describe LotteryService do
           "0x003 -> 1.1",
           "0x004 -> 1.15",
           "0x005 -> 1.15",
-          # 0x006            # is out because it is a recent participant
           "0x007 -> 1.25",   # is present because has >= 30 000 POLS
           # 0x008            # is excluded because it a blacklisted address
           "0x009 -> 1.15",
@@ -173,8 +163,6 @@ RSpec.describe LotteryService do
           "0x017 -> 1.2",
           "0x018 -> 1.2",
           "0x019 -> 1.2",
-          # 0x020            # is a recent winner, so it should not be eligible, thus has no tickets.
-          #                  # However, in the end, as a top holder, exceptionally, it will be a winner
           "0x021 -> 1.2",
           # -------------
           "0x030 -> 1.15",
@@ -219,7 +207,6 @@ RSpec.describe LotteryService do
           "0x003" => 0.22,
           "0x004" => 0.56,
           "0x005" => 0.56,
-          "0x006" => 0.00,    # excluded because is a recent winner
           "0x007" => 1.00,    # always appear because is a top 10 holder
           "0x008" => 0.00,    # excluded because is a blacklisted address
           "0x009" => 0.75,

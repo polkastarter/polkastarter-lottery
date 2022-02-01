@@ -23,12 +23,10 @@ RSpec.describe LotteryService do
   end
 
   let(:service) { described_class.new(balances: balances,
-                                      recent_winners: recent_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
 
   context 'given holders read from a CSV file with holders' do
-    let(:recent_winners) { [] }
     let(:blacklist) {
       csv = CSV.read('spec/fixtures/whales.csv', headers: true)
       csv.map { |holder| holder['address'] }

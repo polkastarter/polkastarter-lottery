@@ -4,7 +4,6 @@ require_relative '../../../lib/services/lottery_service'
 
 RSpec.describe LotteryService do
   let(:service) { described_class.new(balances: balances,
-                                      recent_winners: recent_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS,
                                       nft_rare_holders: nft_rare_holders) }
@@ -29,7 +28,6 @@ RSpec.describe LotteryService do
 
     end
 
-    let(:recent_winners) { ['0x666', '0x777', '0x020'] }
     let(:blacklist)      { ['0x888'] }
     let(:nft_rare_holders) { ['0x010'] }
     let(:balances) {
@@ -39,12 +37,9 @@ RSpec.describe LotteryService do
         '0x333' => 1_000,         # eligible. never participated
         '0x444' => 3_000,         # eligible. never participated
         '0x555' => 3_000,         # eligible. never participated
-        '0x666' => 3_000,         # excluded. recent winner (i.e. in a cooldown period)
-        '0x777' => 30_000,        # eligible. recent winner (i.e. in a cooldown period), but skips cool down
-                                  # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
+        '0x777' => 30_000,        # eligible
         '0x888' => 1_000_000_000, # always excluded. e.g: a Polkastarter team address, an exchange, etc,
-        '0x010' => 0,             # eligible. has 0 POLS, but has a rare NFT
-        '0x020' => 3_000          # eligible. recent winner (i.e. in a cooldown period)
+        '0x010' => 0              # eligible. has 0 POLS, but has a rare NFT
       }
     }
 
@@ -124,7 +119,6 @@ RSpec.describe LotteryService do
         experiments = []
         number_of_experiments.times do |index|
           service = described_class.new(balances: balances,
-                                        recent_winners: recent_winners,
                                         blacklist: blacklist,
                                         max_winners: 1)
           service.run
