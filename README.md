@@ -16,13 +16,10 @@ Check [this blog post](https://blog.polkastarter.com/polkastarter-whitelists-jus
 
 ```ruby
 balances       = { '0x111' => 3000, '0x222' => 1_000, '0x333' => 30_000 }
-past_winners   = ['0x222', '0x333']
-recent_winners = ['0x222']
 
 service = LotteryService.new balances: balances,
-                             recent_winners: recent_winners,
-                             past_winners: past_winners,
-                             blacklist: []
+                             blacklist: [],
+                             seed: 1234567890 # optional
 service.run
 service.winners
 ```
@@ -48,16 +45,8 @@ rspec
 *  1 000+ POLS -> 1.10
 *  3 000+ POLS -> 1.15
 * 10 000+ POLS -> 1.20
-* 30 000+ POLS -> 1.25 (cool down period is bypassed for these holders)
+* 30 000+ POLS -> 1.25
 ```
-
-##### Cool down period
-
-Typically, participants that won a lottery in the previous 7 days will enter a cool down period and will not be able to participate on any other Pool during those 7 days.
-
-However 10% of them (randomly) will still be able to win and participate.
-
-Also, holders with >= 30 000 POLS will also automatically bypass this cool down period and will be able to always participate.
 
 ##### Top 10 holders
 
