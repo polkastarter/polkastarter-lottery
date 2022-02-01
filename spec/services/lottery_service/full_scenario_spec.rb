@@ -6,7 +6,6 @@ RSpec.describe LotteryService do
   before do
     stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 20
     stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
-    stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0.10
     stub_const 'Participant::TICKET_PRICE', 250
     stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
     stub_const 'Participant::BALANCE_WEIGHTS', {
@@ -21,12 +20,10 @@ RSpec.describe LotteryService do
 
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
-                                      past_winners: past_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
 
   context 'given a specific context' do
-    let(:past_winners) { ['0x005'] }
     let(:recent_winners) { ['0x006', '0x007', '0x020'] }
     let(:blacklist) { ['0x008'] }
     let(:balances) {
@@ -36,8 +33,7 @@ RSpec.describe LotteryService do
         '0x002' =>    250, # should be eligible. never participated
         '0x003' =>  1_000, # should be eligible. never participated
         '0x004' =>  3_000, # should be eligible. never participated
-        '0x005' =>  3_000, # should be eligible. previous winner.
-                           # so, it is not used in the calculation of the privileged participants
+        '0x005' =>  3_000, # should be eligible.
         '0x006' =>  3_000, # should be excluded. recent winner (in a cool down period)
         '0x007' => 30_000, # should be eligible. recent winner (in a cool down period)
                            # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
@@ -114,7 +110,7 @@ RSpec.describe LotteryService do
           "0x004 -> 13.8",
           "0x005 -> 13.8",
           # 0x006            # is out because it is a recent winner 
-          "0x007 -> 150.0",  # is present (event being a previous winner) because has >= 30 000 POLS
+          "0x007 -> 150.0",  # is present because has >= 30 000 POLS
           # 0x008            # is excluded because it a blacklisted address
           "0x009 -> 23.0",
           "0x010 -> 23.0",
@@ -162,8 +158,8 @@ RSpec.describe LotteryService do
           "0x003 -> 1.1",
           "0x004 -> 1.15",
           "0x005 -> 1.15",
-          # 0x006            # is out because it is a previous participant 
-          "0x007 -> 1.25",   # is present (event being a previous participant) because has >= 30 000 POLS
+          # 0x006            # is out because it is a recent participant
+          "0x007 -> 1.25",   # is present because has >= 30 000 POLS
           # 0x008            # is excluded because it a blacklisted address
           "0x009 -> 1.15",
           "0x010 -> 1.15",
@@ -219,39 +215,39 @@ RSpec.describe LotteryService do
         expected_probabilities = {
           "0x001" => 0,
           # -------------
-          "0x002" => 0.1250,
-          "0x003" => 0.2694,
-          "0x004" => 0.5554,
-          "0x005" => 0.5126,
-          "0x006" => 0.0000, # excluded because is a recent winner
-          "0x007" => 1.0000, # always appear because is a top 10 holder
-          "0x008" => 0.0000, # excluded because is a blacklisted address
-          "0x009" => 0.7250,
-          "0x010" => 0.7250,
+          "0x002" => 0.06,
+          "0x003" => 0.22,
+          "0x004" => 0.56,
+          "0x005" => 0.56,
+          "0x006" => 0.00,    # excluded because is a recent winner
+          "0x007" => 1.00,    # always appear because is a top 10 holder
+          "0x008" => 0.00,    # excluded because is a blacklisted address
+          "0x009" => 0.75,
+          "0x010" => 0.75,
           # -------------
-          "0x011" => 0.9210, # holds a lot (almost the same as top 10 holders). however, has a little bit less probability because it is not a top 10 holder
-          "0x012" => 1.0,    # always appear because is a top 10 holder 1
-          "0x013" => 1.0,    # always appear because is a top 10 holder 2
-          "0x014" => 1.0,    # always appear because is a top 10 holder 3
-          "0x015" => 1.0,    # always appear because is a top 10 holder 4
-          "0x016" => 1.0,    # always appear because is a top 10 holder 5
-          "0x017" => 1.0,    # always appear because is a top 10 holder 6
-          "0x018" => 1.0,    # always appear because is a top 10 holder 7
-          "0x019" => 1.0,    # always appear because is a top 10 holder 8
-          "0x020" => 1.0,    # always appear because is a top 10 holder 9
-          "0x021" => 1.0,    # always appear because is a top 10 holder 10
+          "0x011" => 0.93,    # holds a lot (almost the same as top 10 holders). however, has a little bit less probability because it is not a top 10 holder
+          "0x012" => 1.00,    # always appear because is a top 10 holder 1
+          "0x013" => 1.00,    # always appear because is a top 10 holder 2
+          "0x014" => 1.00,    # always appear because is a top 10 holder 3
+          "0x015" => 1.00,    # always appear because is a top 10 holder 4
+          "0x016" => 1.00,    # always appear because is a top 10 holder 5
+          "0x017" => 1.00,    # always appear because is a top 10 holder 6
+          "0x018" => 1.00,    # always appear because is a top 10 holder 7
+          "0x019" => 1.00,    # always appear because is a top 10 holder 8
+          "0x020" => 1.00,    # always appear because is a top 10 holder 9
+          "0x021" => 1.00,    # always appear because is a top 10 holder 10
           # -------------
-          "0x030" => 0.5547,
-          "0x031" => 0.5549,
-          "0x032" => 0.5624,
-          "0x033" => 0.5638,
-          "0x034" => 0.5529,
-          "0x035" => 0.5546,
-          "0x036" => 0.5640,
-          "0x037" => 0.5590,
-          "0x038" => 0.5508,
-          "0x039" => 0.5613,
-          "0x040" => 0.5609
+          "0x030" => 0.56,
+          "0x031" => 0.56,
+          "0x032" => 0.56,
+          "0x033" => 0.56,
+          "0x034" => 0.56,
+          "0x035" => 0.56,
+          "0x036" => 0.56,
+          "0x037" => 0.56,
+          "0x038" => 0.56,
+          "0x039" => 0.56,
+          "0x040" => 0.56
         }
 
         # Calculate values

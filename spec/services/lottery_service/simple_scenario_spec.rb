@@ -5,7 +5,6 @@ require_relative '../../../lib/services/lottery_service'
 RSpec.describe LotteryService do
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
-                                      past_winners: past_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS,
                                       nft_rare_holders: nft_rare_holders,
@@ -18,7 +17,6 @@ RSpec.describe LotteryService do
     before do
       stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 500
       stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 0 # Ignore these on this context, as we have a really small set and we just want to test shuffle and weights
-      stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0 # Ignore these on this context, as we have a really small set and we just want to test shuffle and weights
       stub_const 'Participant::TICKET_PRICE', 250
       stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
       stub_const 'Participant::BALANCE_WEIGHTS', {
@@ -32,7 +30,6 @@ RSpec.describe LotteryService do
 
     end
 
-    let(:past_winners)   { ['0x555'] }
     let(:recent_winners) { ['0x666', '0x777', '0x020'] }
     let(:blacklist)      { ['0x888'] }
     let(:nft_rare_holders) { ['0x010'] }
@@ -43,10 +40,7 @@ RSpec.describe LotteryService do
         '0x222' => 250,           # eligible. never participated
         '0x333' => 1_000,         # eligible. never participated
         '0x444' => 3_000,         # eligible. never participated
-        '0x555' => 3_000,         # eligible. previous winner, but not recent winner (i.e. not in cooldown period)
-                                  # So, it would not be used in the calculation of the privileged participants
-                                  # However, in these simple scenario of tests we're ignoring it
-                                  # because we have PRIVILEGED_NEVER_WINNING_RATIO set to 0
+        '0x555' => 3_000,         # eligible. never participated
         '0x666' => 3_000,         # excluded. recent winner (i.e. in a cooldown period)
         '0x777' => 30_000,        # eligible. recent winner (i.e. in a cooldown period), but skips cool down
                                   # no cooldown (i.e. would be excluded, but is eligible because has >= 30 000 POLS
@@ -136,7 +130,6 @@ RSpec.describe LotteryService do
         number_of_experiments.times do |index|
           service = described_class.new(balances: balances,
                                         recent_winners: recent_winners,
-                                        past_winners: past_winners,
                                         blacklist: blacklist,
                                         max_winners: 1)
           service.run

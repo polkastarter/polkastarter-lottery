@@ -6,7 +6,6 @@ RSpec.describe LotteryService do
   before do
     stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 1000
     stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
-    stub_const 'LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO', 0.0
     stub_const 'Participant::TICKET_PRICE', 250
     stub_const 'Participant::NO_COOLDOWN_MINIMUM_BALANCE', 30_000
     stub_const 'Participant::BALANCE_WEIGHTS', {
@@ -25,12 +24,10 @@ RSpec.describe LotteryService do
 
   let(:service) { described_class.new(balances: balances,
                                       recent_winners: recent_winners,
-                                      past_winners: past_winners,
                                       blacklist: blacklist,
                                       max_winners: LotteryService::DEFAULT_MAX_WINNERS) }
 
   context 'given holders read from a CSV file with holders' do
-    let(:past_winners) { [] }
     let(:recent_winners) { [] }
     let(:blacklist) {
       csv = CSV.read('spec/fixtures/whales.csv', headers: true)
@@ -48,7 +45,6 @@ RSpec.describe LotteryService do
         expect(service.all_participants.size).to                       eq(38_191) # total participants, excluding potential whales (stored on whales.csv)
         expect(service.participants.size).to                           eq(18_508) # eligible participants only
         expect(service.send(:top_holders).size).to                     eq(LotteryService::DEFAULT_TOP_N_HOLDERS)
-        expect(service.send(:privileged_participants).size).to         eq(LotteryService::DEFAULT_MAX_WINNERS * LotteryService::DEFAULT_PRIVILEGED_NEVER_WINNING_RATIO) # i.e. 10% of 1000
         expect(service.winners.size).to                                eq(LotteryService::DEFAULT_MAX_WINNERS)
       end
 
