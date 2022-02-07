@@ -1,13 +1,9 @@
-
-
 require 'spec_helper'
 require 'csv'
 require_relative '../../../lib/services/lottery_service'
 
 RSpec.describe LotteryService do
   before do
-    stub_const 'LotteryService::DEFAULT_MAX_WINNERS', 200
-    stub_const 'LotteryService::DEFAULT_TOP_N_HOLDERS', 10
     stub_const 'Participant::TICKET_PRICE', 250
     stub_const 'Participant::BALANCE_WEIGHTS', {
       0      => 0.00,

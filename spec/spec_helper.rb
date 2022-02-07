@@ -18,6 +18,8 @@ Dir[File.expand_path('lib/**/*.rb'), __FILE__].each { |file| require file }
 
 require 'initializers/enumerable'
 require 'initializers/hash'
+require 'shared/theoretical_probabilites_example'
+require 'matchers/be_around'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
