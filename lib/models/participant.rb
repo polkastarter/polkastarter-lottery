@@ -21,19 +21,6 @@ class Participant
     30_000 => 1.25
   }.freeze
 
-  def calculate_probability(all_tickets)
-    @probability      = tickets.to_f / all_tickets # e.g: 750 / 1500 = 0.5
-    @drew_probability = rand                       # e.g: 0.18391881167709445
-
-    @winner = @drew_probability < @probability
-
-    @drew_probability
-  end
-
-  def winner?
-    @winner
-  end
-
   def tickets
     (balance / TICKET_PRICE).to_i * weight
   end
@@ -47,10 +34,6 @@ class Participant
   end
 
   def eligible?
-    tickets > 0 # && !weight.nil?
-  end
-
-  def <=>(other)
-    other.balance <=> self.balance # more balance comes first
+    tickets > 0
   end
 end

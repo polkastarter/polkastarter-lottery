@@ -47,34 +47,11 @@ RSpec.describe LotteryService do
       end
     end
 
-    describe '#all_tickets' do
+    describe 'all_tickets' do
       it 'returns the total number of tickets' do
         service.run
 
-        expect(service.all_tickets).to eq(183.0)
-      end
-    end
-
-    describe '#probabilites' do
-      it 'calculates the right number of tickets for each participant' do
-        service.run
-
-        all_tickets = service.all_tickets
-        service.participants.each do |participant|
-          participant.calculate_probability all_tickets
-        end
-
-        probabilities = service.participants.map do |participant|
-          "#{participant.address} -> #{participant.probability.round(4)}"
-        end
-
-        expect(probabilities).to match_array([
-          '0x222 -> 0.0055', # =   1.0 ticket  / 183 total tickets =  0.55%
-          '0x333 -> 0.024',  # =   4.0 tickets / 183 total tickets =  2.40%
-          '0x444 -> 0.0754', # =  13.8 tickets / 183 total tickets =  7.54%
-          '0x555 -> 0.0754', # =  13.8 tickets / 183 total tickets =  7.54%
-          '0x666 -> 0.8197'  # = 150.0 tickets / 183 total tickets = 81.87%
-        ])
+        expect(service.participants.sum(&:tickets)).to eq(183.0)
       end
     end
 

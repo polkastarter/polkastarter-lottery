@@ -17,7 +17,7 @@ RSpec.describe LotteryService do
   end
 
   before do
-    skip if ENV['SKIP_BULK_SPECS']
+    skip if ENV['SKIP_BULK_SPECS'] == 'true'
   end
 
   let(:max_winners) { 1_000 }
@@ -42,8 +42,8 @@ RSpec.describe LotteryService do
       end
 
       it 'runs and generates the expected probabilites for some key holders' do
-        number_of_experiments = 50_000
-        error = 0.25
+        number_of_experiments = 100
+        error = 0.5
 
         # Run experiments
         experiments = []
@@ -56,9 +56,7 @@ RSpec.describe LotteryService do
         number_of_experiments.times do |index|
           timestamp = Time.now.to_f
 
-          puts "start"
           service.run
-          puts "end"
           experiments << service.winners.map(&:address)
 
           # Collect tier stats to show at the end
@@ -97,7 +95,7 @@ RSpec.describe LotteryService do
 
         # Print Statistics
         puts ""
-        puts "Probabilities for #{number_of_experiments} experiments (#{1_000} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE} POLS:"
+        puts "Probabilities for #{number_of_experiments} experiments (#{max_winners} winners on each) over a total of #{balances.count} participants with a ticket price of #{Participant::TICKET_PRICE} POLS:"
         puts " * <250 POLS: #{stats_for(tiers_experiments[0], number_of_experiments)}"
         puts " * 250+ POLS: #{stats_for(tiers_experiments[250], number_of_experiments)}"
         puts " * 1k+ POLS:  #{stats_for(tiers_experiments[1_000], number_of_experiments)}"
@@ -116,15 +114,15 @@ RSpec.describe LotteryService do
         puts "Tier 30k POLS: #{tiers_experiments[30_000][:percentage]}"
 
         # Final veredict
-        expect(probabilities_hash.values.sum).to eq(1_000)
+        expect(probabilities_hash.values.sum).to eq(max_winners)
 
         # Expect specific percentage of winners per each tier
-        # TODO: expect(tiers_experiments[0][:percentage]).to be_nan
-        # TODO: expect(tiers_experiments[250][:percentage]).to    be_around(0.96,  error)
-        # TODO: expect(tiers_experiments[1_000][:percentage]).to  be_around(4.15,  error)
-        # TODO: expect(tiers_experiments[3_000][:percentage]).to  be_around(10.25, error)
-        # TODO: expect(tiers_experiments[10_000][:percentage]).to be_around(37.70, error)
-        # TODO: expect(tiers_experiments[30_000][:percentage]).to be_around(76.15, error)
+        expect(tiers_experiments[0][:percentage]).to be_nan
+        expect(tiers_experiments[250][:percentage]).to    be_around(0.95,  error)
+        expect(tiers_experiments[1_000][:percentage]).to  be_around(4.0,  error)
+        expect(tiers_experiments[3_000][:percentage]).to  be_around(10.0, error)
+        expect(tiers_experiments[10_000][:percentage]).to be_around(36.5, error)
+        expect(tiers_experiments[30_000][:percentage]).to be_around(78.0, error)
       end
     end
   end

@@ -5,12 +5,11 @@ class LotteryService
   # input
   attr_reader :seed        # optional  e.g: 12345678
   attr_reader :max_winners # mandatory e.g: 1000
-  attr_reader :balances    # mandatory e.g: {'0x71C7656EC7ab88b098defB751B7401B5f6d8976F' => 3000}
+  attr_reader :balances    # mandatory e.g: { 12345 => 3000} # { application_id => pols_power }
 
   # output
-  attr_reader :participants # only the eligible participants
-  attr_reader :winners      # only winners
-  attr_reader :all_tickets  # number of tickets
+  attr_reader :participants # only the eligible participants, sorted by the final probability
+  attr_reader :winners      # winners
 
   def initialize(balances:, max_winners:, seed: nil)
     @balances      = balances
@@ -23,34 +22,9 @@ class LotteryService
 
   def run
     @participants = balances.map { |address, balance| Participant.new address: address, balance: balance }
-    @participants = @participants.select(&:eligible?).sort # sorted by balance
-    @all_tickets  = @participants.sum(&:tickets)
+    @participants.select! &:eligible?
+    @participants.sort_by! { |participant| - rand ** (1.0 / participant.tickets) } # reservoir sampling
 
-    return @winners = @participants if @participants.size <= max_winners
-
-    while @winners.size < max_winners
-      exclude_winners_for_next_round unless @winners.empty?
-
-      @winners += calculate_winners
-      @winners  = @winners.first max_winners
-    end
-
-    @winners
-  end
-
-  private
-
-  def exclude_winners_for_next_round
-    @participants.reject! { |participant| @winners.include? participant }
-  end
-
-  def calculate_winners
-    participants.each { |participant| participant.calculate_probability all_tickets }
-
-    winners = participants.select { |p| p.winner? }
-    winners = winners.sort { |p1, p2| p1.drew_probability <=> p2.drew_probability }
-    winners = winners.first max_winners
-
-    winners
+    @winners = participants.first max_winners
   end
 end
