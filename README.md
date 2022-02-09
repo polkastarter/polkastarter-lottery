@@ -15,10 +15,10 @@ Check [this blog post](https://blog.polkastarter.com/polkastarter-whitelists-jus
 # Basic usage
 
 ```ruby
-balances       = { '0x111' => 3000, '0x222' => 1_000, '0x333' => 30_000 }
+balances = { '0x111' => 3000, '0x222' => 1_000, '0x333' => 30_000 }
 
 service = LotteryService.new balances: balances,
-                             blacklist: [],
+                             max_winners: 1_000,
                              seed: 1234567890 # optional
 service.run
 service.winners
