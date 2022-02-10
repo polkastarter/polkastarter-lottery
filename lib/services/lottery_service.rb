@@ -23,7 +23,7 @@ class LotteryService
   def run
     @participants = balances.map { |address, balance| Participant.new address: address, balance: balance }
     @participants.select! &:eligible?
-    @participants.sort_by! { |participant| - rand ** (1.0 / participant.tickets) } # reservoir sampling
+    @participants.sort!
 
     @winners = participants.first max_winners
   end

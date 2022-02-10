@@ -3,8 +3,6 @@ require 'date'
 class Participant
   attr_reader :address
   attr_reader :balance
-  attr_reader :probability
-  attr_reader :drew_probability
 
   def initialize(address:, balance:)
     @address = address.downcase
@@ -21,6 +19,14 @@ class Participant
     30_000 => 1.25
   }.freeze
 
+  def dice
+    @dice ||= rand
+  end
+
+  def probability
+    dice ** (1.0 / tickets) # reservoir sampling
+  end
+
   def tickets
     (balance / TICKET_PRICE).to_i * weight
   end
@@ -35,5 +41,9 @@ class Participant
 
   def eligible?
     tickets > 0
+  end
+
+  def <=>(other)
+    other.probability <=> self.probability
   end
 end
