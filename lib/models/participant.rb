@@ -1,11 +1,11 @@
 require 'date'
 
 class Participant
-  attr_reader :address
+  attr_reader :identifier
   attr_reader :balance
 
-  def initialize(address:, balance:)
-    @address = address.downcase
+  def initialize(identifier:, balance:)
+    @identifier = identifier.downcase
     @balance = (balance && balance >= 0) ? balance : 0 # guarding against invalid balances
   end
 

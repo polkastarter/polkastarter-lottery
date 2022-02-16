@@ -26,7 +26,7 @@ RSpec.describe LotteryService do
   context 'given holders read from a CSV file with holders' do
     let(:balances) {
       csv = CSV.read('spec/fixtures/holders.csv', headers: true)
-      csv.map { |holder| [holder['address'], holder['pols_balance'].to_f] }.to_h
+      csv.map { |holder| [holder['identifier'], holder['pols_balance'].to_f] }.to_h
     }
 
     describe '#run' do
@@ -57,7 +57,7 @@ RSpec.describe LotteryService do
           timestamp = Time.now.to_f
 
           service.run
-          experiments << service.winners.map(&:address)
+          experiments << service.winners.map(&:identifier)
 
           # Collect tier stats to show at the end
           stats_service = LotteryStatsService.new(service)
@@ -71,7 +71,7 @@ RSpec.describe LotteryService do
 
           # Write output to CSV
           service.winners.each do |winner|
-            experiments_output << [index, winner.address, winner.balance, winner.weight, winner.tier, winner.tickets]
+            experiments_output << [index, winner.identifier, winner.balance, winner.weight, winner.tier, winner.tickets]
           end
 
           expect(service.winners.size).to eq(max_winners)
@@ -84,14 +84,14 @@ RSpec.describe LotteryService do
 
         # Write output to CSV
         CSV.open('experiments_output.csv', 'w') do |csv|
-          csv << %w(experiment address balance weight tier tickets)
+          csv << %w(experiment identifier balance weight tier tickets)
           csv << experiments_output.each { |row| csv << row }
         end
 
         # Calulcate probabilities
-        occurences = experiments.flatten.count_by { |address| address }
+        occurences = experiments.flatten.count_by { |identifier| identifier }
         probabilities_hash = occurences.transform_values { |value| value.to_f / number_of_experiments }
-        probabilities_array = probabilities_hash.sort_by { |address, probability| probability }.reverse
+        probabilities_array = probabilities_hash.sort_by { |identifier, probability| probability }.reverse
 
         # Print Statistics
         puts ""

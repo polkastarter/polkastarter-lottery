@@ -9,6 +9,7 @@ class LotteryService
 
   # output
   attr_reader :participants # only the eligible participants, sorted by the final probability
+  attr_reader :not_eligible # only the not eligible participants (without balance)
   attr_reader :winners      # winners
 
   def initialize(balances:, max_winners:, seed: nil)
@@ -21,7 +22,8 @@ class LotteryService
   end
 
   def run
-    @participants = balances.map { |address, balance| Participant.new address: address, balance: balance }
+    @participants = balances.map { |identifier, balance| Participant.new identifier: identifier, balance: balance }
+    @not_eligible = @participants.reject &:eligible?
     @participants.select! &:eligible?
     @participants.sort!
 

@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+require 'polkastarter-lottery'
+require 'csv'
+require 'pry'
+
+file_path = 'applications.csv'
+
+if ARGV.nil? || ARGV.size != 3
+  puts "Usage:"
+  puts " 1. Download '#{file_path}' from polkastarter.com, containing the structure per row: application_id,pols_power"
+  puts " 2. Place the '#{file_path}' file in the root of this folder"
+  puts " 3. Run ./verify <max_winners> <application_id> <seed>"
+else
+  begin
+    file = File.open file_path
+  rescue Errno::ENOENT
+    puts "File '#{file_path}' does not exist. Please place it in the root directory before running"
+    return
+  end
+
+  max_winners    = ARGV[0].to_i
+  application_id = ARGV[1]
+  seed           = ARGV[2].to_i
+  balances       = CSV.read('applications.csv').to_h.transform_values { |v| v.to_f }
+
+  service = LotteryService.new(balances: balances, max_winners: max_winners, seed: seed)
+  service.run
+
+  winner      = service.winners.find      { |participant| participant.address == ARGV[1] }
+  participant = service.participants.find { |participant| participant.address == ARGV[1] }
+
+  # puts ""
+  # puts "Winners list"
+  # puts service.winners.map { |winner| "#{winner.address} | #{winner.probability} | #{winner.balance}" }
+  # puts ""
+
+  if participant.nil?
+    puts "Application #{application_id} is not a participant (not applied or not eligible)"
+  elsif winner
+    puts "Application #{application_id} is a Winner :) with a probability of #{winner.probability}"
+  else
+    puts "Application #{application_id} is Unlucky :( with a probability of #{participant.probability}"
+  end
+end

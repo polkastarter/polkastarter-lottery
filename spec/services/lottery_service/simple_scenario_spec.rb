@@ -34,7 +34,7 @@ RSpec.describe LotteryService do
         service.run
 
         tickets = service.participants.map do |participant|
-          "#{participant.address} -> #{participant.tickets.round(4)}"
+          "#{participant.identifier} -> #{participant.tickets.round(4)}"
         end
 
         expect(tickets).to match_array([
@@ -59,7 +59,7 @@ RSpec.describe LotteryService do
       it 'returns the list of all eligible participants' do
         service.run
 
-        expect(service.participants.map(&:address)).to match_array(%w(
+        expect(service.participants.map(&:identifier)).to match_array(%w(
           0x222
           0x333
           0x444
@@ -74,7 +74,7 @@ RSpec.describe LotteryService do
         service.run
 
         weights = service.participants.map do |participant|
-          "#{participant.address} -> #{participant.weight}"
+          "#{participant.identifier} -> #{participant.weight}"
         end
 
         expect(weights).to match_array([
@@ -91,7 +91,7 @@ RSpec.describe LotteryService do
       it 'returns the winners only ' do
         service.run
 
-        expect(service.winners.map(&:address)).to match_array([
+        expect(service.winners.map(&:identifier)).to match_array([
           '0x222',
           '0x333',
           '0x444',

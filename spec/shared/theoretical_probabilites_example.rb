@@ -11,13 +11,13 @@ RSpec.shared_examples 'theoretical probability' do |theoretical_probability|
       # Note that we're only getting the first winner on each exoeriment, because we just want to calculate probabilities for each of them
       service = described_class.new(balances: balances, max_winners: max_winners)
       service.run
-      experiments << service.winners.map(&:address)
+      experiments << service.winners.map(&:identifier)
 
       # puts " performed experiment number #{index} of #{number_of_experiments}" if index % (10_000) == 0
     end
 
     # Calulcate probabilities
-    occurences       = experiments.flatten.count_by { |address| address } # e.g: { '0x222' => 30, '0x333' => 60, ... )
+    occurences       = experiments.flatten.count_by { |identifier| identifier } # e.g: { '0x222' => 30, '0x333' => 60, ... )
     total_occurences = occurences.values.sum
     probabilities    = occurences.transform_values { |value| value.to_f / number_of_experiments }
 
@@ -31,8 +31,8 @@ RSpec.shared_examples 'theoretical probability' do |theoretical_probability|
     # Veredict
     expect(total_occurences).to eq(number_of_experiments * max_winners)
     expect(probabilities.values.sum).to eq(max_winners)
-    probabilities.each do |address, probability|
-      expect(probability).to be_around(theoretical_probability[address], error_margin)
+    probabilities.each do |identifier, probability|
+      expect(probability).to be_around(theoretical_probability[identifier], error_margin)
     end
   end
 end
