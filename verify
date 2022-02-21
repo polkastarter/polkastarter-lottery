@@ -27,8 +27,8 @@ else
   service = LotteryService.new(balances: balances, max_winners: max_winners, seed: seed)
   service.run
 
-  winner      = service.winners.find      { |participant| participant.address == ARGV[1] }
-  participant = service.participants.find { |participant| participant.address == ARGV[1] }
+  winner      = service.winners.find      { |participant| participant.identifier == ARGV[1] }
+  participant = service.participants.find { |participant| participant.identifier == ARGV[1] }
 
   # puts ""
   # puts "Winners list"

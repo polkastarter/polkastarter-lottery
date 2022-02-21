@@ -3,4 +3,5 @@
 .bundle
 Gemfile.lock
 experiments_output.csv
+applications.csv
 
