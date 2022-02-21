@@ -38,8 +38,8 @@ else
   if participant.nil?
     puts "Application #{application_id} is not a participant (not applied or not eligible)"
   elsif winner
-    puts "Application #{application_id} is a Winner :) with a probability of #{winner.probability}"
+    puts "Application #{application_id} is a Winner :)"
   else
-    puts "Application #{application_id} is Unlucky :( with a probability of #{participant.probability}"
+    puts "Application #{application_id} is Unlucky :("
   end
 end

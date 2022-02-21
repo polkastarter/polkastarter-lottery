@@ -56,4 +56,5 @@ Top 10 holders are always winners. They can always particiapte at any pool and a
 
 1. Download 'applications.csv' from polkastarter.com, containing the structure per row: application_id,pols_power
 2. Place 'applications.csv' file in the root of project
-3. Run ``./verify <max_winners> <application_id> <seed>`
+3. Build and install the gem with `gem build && gem install polkastarter-lottery`
+4. Run `./verify <max_winners> <application_id> <seed>`

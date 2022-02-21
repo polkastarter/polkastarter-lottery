@@ -5,7 +5,7 @@ class Participant
   attr_reader :balance
 
   def initialize(identifier:, balance:)
-    @identifier = identifier.downcase
+    @identifier = identifier
     @balance = (balance && balance >= 0) ? balance : 0 # guarding against invalid balances
   end
 
