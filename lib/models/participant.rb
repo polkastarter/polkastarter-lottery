@@ -4,9 +4,10 @@ class Participant
   attr_reader :identifier
   attr_reader :balance
 
-  def initialize(identifier:, balance:)
+  def initialize(identifier:, balance:, xorshift: nil)
     @identifier = identifier
-    @balance = (balance && balance >= 0) ? balance : 0 # guarding against invalid balances
+    @balance    = (balance && balance >= 0) ? balance : 0 # guarding against invalid balances
+    @xorshift   = xorshift || XorshiftService.new
   end
 
   TICKET_PRICE = 250.freeze # e.g: 100 means 1 ticket = 100 POLS
@@ -20,7 +21,7 @@ class Participant
   }.freeze
 
   def dice
-    @dice ||= rand
+    @dice ||= @xorshift.next_float
   end
 
   def probability

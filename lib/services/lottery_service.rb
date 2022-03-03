@@ -1,4 +1,5 @@
 require 'models/participant'
+require 'services/xorshift_service'
 require 'pry'
 
 class LotteryService
@@ -16,13 +17,12 @@ class LotteryService
     @balances      = balances
     @max_winners   = max_winners
     @winners       = []
-    @seed          = seed || Random.new_seed
-
-    srand @seed
+    @seed          = seed
+    @xorshift      = XorshiftService.new @seed
   end
 
   def run
-    @participants = balances.map { |identifier, balance| Participant.new identifier: identifier, balance: balance }
+    @participants = balances.map { |identifier, balance| Participant.new identifier: identifier, balance: balance, xorshift: @xorshift }
     @not_eligible = @participants.reject &:eligible?
     @participants.select! &:eligible?
     @participants.sort!
