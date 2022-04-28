@@ -1,6 +1,5 @@
 require 'models/participant'
 require 'services/xorshift_service'
-require 'pry'
 
 class LotteryService
   # input

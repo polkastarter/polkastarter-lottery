@@ -2,7 +2,6 @@
 
 require 'polkastarter-lottery'
 require 'csv'
-require 'pry'
 
 file_path = 'applications.csv'
 

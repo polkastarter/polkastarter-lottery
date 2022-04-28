@@ -1,5 +1,3 @@
-require 'pry'
-
 # Reference https://rosettacode.org/wiki/Pseudo-random_numbers/Xorshift_star#Ruby
 class XorshiftService
   MASK64 = (1 << 64) - 1

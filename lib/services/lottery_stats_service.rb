@@ -1,6 +1,5 @@
 require_relative '../models/participant'
 require 'services/lottery_service'
-require 'pry'
 
 class LotteryStatsService
   # input
