@@ -15,14 +15,11 @@ Check [this blog post](https://blog.polkastarter.com/polkastarter-whitelists-jus
 # Basic usage
 
 ```ruby
-balances       = { '0x111' => 3000, '0x222' => 1_000, '0x333' => 30_000 }
-past_winners   = ['0x222', '0x333']
-recent_winners = ['0x222']
+balances = { '0x111' => 3000, '0x222' => 1_000, '0x333' => 30_000 }
 
 service = LotteryService.new balances: balances,
-                             recent_winners: recent_winners,
-                             past_winners: past_winners,
-                             blacklist: []
+                             max_winners: 1_000,
+                             seed: 1234567890 # optional
 service.run
 service.winners
 ```
@@ -48,17 +45,16 @@ rspec
 *  1 000+ POLS -> 1.10
 *  3 000+ POLS -> 1.15
 * 10 000+ POLS -> 1.20
-* 30 000+ POLS -> 1.25 (cool down period is bypassed for these holders)
+* 30 000+ POLS -> 1.25
 ```
-
-##### Cool down period
-
-Typically, participants that won a lottery in the previous 7 days will enter a cool down period and will not be able to participate on any other Pool during those 7 days.
-
-However 10% of them (randomly) will still be able to win and participate.
-
-Also, holders with >= 30 000 POLS will also automatically bypass this cool down period and will be able to always participate.
 
 ##### Top 10 holders
 
 Top 10 holders are always winners. They can always particiapte at any pool and also bypass the cool down period.
+
+##### Reproduce previous lottery results
+
+1. Download 'applications.csv' from polkastarter.com, containing the structure per row: application_id,pols_power
+2. Place 'applications.csv' file in the root of project
+3. Build and install the gem with `gem build && gem install polkastarter-lottery`
+4. Run `./verify <max_winners> <application_id> <seed>`

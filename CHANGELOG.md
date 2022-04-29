@@ -1,3 +1,9 @@
+# 1.3.0: 26.Apr.2022: Lottery transparency
+
+* Completely refactor lottery for simplicity and tranparency
+* Allow to replicate the lottery with a random seed number (generated in a trustworthy way and stored on-chain) on the user side for full transparency
+* Simplify tests and better tests
+
 # 1.2.2: 18.Jan.2022: Disable never-winning ratio by default
 
 * Disable never-winning ratio by default, as we're not using it anymore for a long time

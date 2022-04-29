@@ -1,3 +1,2 @@
-if defined?(Rails::Railtie)
-  require 'services/lottery_service'
-end
+require 'services/lottery_service'
+require 'services/xorshift_service'

@@ -32,6 +32,6 @@ jobs:
           bundle install --jobs 4 --retry 3
       - name: Run Tests
         env:
-          SKIP_BULK_SPECS: true
+          SKIP_BULK_SPECS: false
         run: |
           bundle exec rspec
