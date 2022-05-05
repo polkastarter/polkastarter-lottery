@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.summary     = "Polkastarter Lottery"
   s.description = "The Polkastarter Lottery calculation system"
   s.authors     = ["Polkastarter", "Miguel"]
-  s.email       = 'miguelcma@polkastarter.com'
+  s.email       = 'miguel.almeida@polkastarter.com'
 
   s.files       = Dir['{lib}/**/*', 'LICENSE.md', 'README.md']
   s.test_files  = Dir['spec/**/*']
