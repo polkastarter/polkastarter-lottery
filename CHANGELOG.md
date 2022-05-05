@@ -1,3 +1,7 @@
+# 1.2.3: 5.May.2022: Bugfix: edge case situation when max_winners == participants
+
+* Bug: when the number of applications is pretty close to the number of max winners, the result of winners can be lower than expected #10
+
 # 1.2.2: 18.Jan.2022: Disable never-winning ratio by default
 
 * Disable never-winning ratio by default, as we're not using it anymore for a long time

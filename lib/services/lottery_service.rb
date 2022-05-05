@@ -102,9 +102,18 @@ class LotteryService
   end
 
   def shuffled_eligible_participants
-    (max_winners * 5).times.map do
-      weighted_random_sample(participants)
+    return participants if participants.count <= max_winners
+
+    to_shuffle = participants
+    winners = []
+    while winners.count < participants.count do
+      winners += max_winners.times.map { weighted_random_sample(to_shuffle) }
+      winners.uniq!
+
+      to_shuffle = to_shuffle - winners
     end
+
+    winners
   end
 
   def never_winning_participants
