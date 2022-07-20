@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://www.polkastarter.com/'
   s.license     = 'MIT'
 
-  s.add_dependency 'rspec', '~> 3.10'
-
+  s.add_development_dependency 'rspec', '~> 3.10'
   s.add_development_dependency 'pry', '~> 0.14'
 end
