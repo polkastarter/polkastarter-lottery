@@ -7,9 +7,9 @@ file_path = 'applications.csv'
 
 if ARGV.nil? || ARGV.size != 3
   puts "Usage:"
-  puts " 1. Download '#{file_path}' from polkastarter.com, containing the structure per row: application_id,pols_power"
+  puts " 1. Download '#{file_path}' from polkastarter.com, containing the structure per row: identifier,pols_power"
   puts " 2. Place the '#{file_path}' file in the root of this folder"
-  puts " 3. Run ./verify <max_winners> <application_id> <seed>"
+  puts " 3. Run ./verify <max_winners> <identifier> <seed>"
 else
   begin
     file = File.open file_path
@@ -19,9 +19,12 @@ else
   end
 
   max_winners    = ARGV[0].to_i
-  application_id = ARGV[1]
+  identifier     = ARGV[1]
   seed           = ARGV[2].to_i
-  balances       = CSV.read('applications.csv').to_h.transform_values { |v| v.to_f }
+  balances       = CSV.read('applications.csv', headers: true).inject({}) do |hash, row|
+    hash[row['identifier']] = row['balance'].to_f
+    hash
+  end
 
   service = LotteryService.new(balances: balances, max_winners: max_winners, seed: seed)
   service.run
@@ -35,10 +38,10 @@ else
   # puts ""
 
   if participant.nil?
-    puts "Application #{application_id} is not a participant (not applied or not eligible)"
+    puts "Application #{identifier} is not a participant (not applied or not eligible)"
   elsif winner
-    puts "Application #{application_id} is a Winner :)"
+    puts "Application #{identifier} is a Winner :)"
   else
-    puts "Application #{application_id} is Unlucky :("
+    puts "Application #{identifier} is Unlucky :("
   end
 end
