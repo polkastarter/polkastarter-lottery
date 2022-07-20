@@ -1,3 +1,7 @@
+# v1.3.1: Bugfix on verify script
+
+* Bug fix: the "verify" script was still using the legacy "application_id" instead of "identifier"
+
 # 1.3.0: 26.Apr.2022: Lottery transparency
 
 * Completely refactor lottery for simplicity and tranparency
