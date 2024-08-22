@@ -1,3 +1,7 @@
+# v1.3.2: Ensure correct order before shuffling
+
+* Bug fix: ensure the order of participants is always the same before rolling the dices
+
 # v1.3.1: Bugfix on verify script
 
 * Bug fix: the "verify" script was still using the legacy "application_id" instead of "identifier"

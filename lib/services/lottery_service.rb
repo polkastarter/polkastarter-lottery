@@ -22,6 +22,7 @@ class LotteryService
 
   def run
     @participants = balances.map { |identifier, balance| Participant.new identifier: identifier, balance: balance, xorshift: @xorshift }
+    @participants = @participants.sort_by { |participant| participant.identifier }
     @not_eligible = @participants.reject &:eligible?
     @participants.select! &:eligible?
     @participants.sort!
